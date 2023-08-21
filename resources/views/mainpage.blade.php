@@ -23,13 +23,20 @@
         .search {
             border: 1px solid black;
         }
+        .containing{
+            position: absolute;
+            width: 100%;
+            height: 100%;
+
+        }
     </style>
 </head>
 
-<body class="antialiased">
+<body  class="antialiased">
+    @include('header')
     <div
         class="relative sm:flex sm:justify-center sm:items-center min-h-screen bg-dots-darker bg-center bg-gray-100 dark:bg-dots-lighter dark:bg-gray-900 selection:bg-red-500 selection:text-white">
-        @if (Route::has('login'))
+        {{-- @if (Route::has('login'))
             <div class="sm:fixed sm:top-0 sm:right-0 p-6 text-right z-10">
                 @auth
                     <a href="{{ url('/home') }}"
@@ -45,7 +52,11 @@
                     @endif
                 @endauth
             </div>
-        @endif
+        @endif --}}
+
+        <div >
+
+        <img class="containing" src="{{url('/images/'.$randompic.".jpg")}}" alt="random image" />
         <div class="container" style="border:1px">
             <form action="/searching" method="POST">
                 @csrf
@@ -58,11 +69,14 @@
 
                     <input type="text" name="search" class="form-control" id="exampleFormControlInput1"
                         placeholder="Search anything you like">
+
+                        <button type="submit" class="btn btn-lg btn-primary">Search</button>
                 </div>
                 <div class="text-center">
-                    <button type="submit" class="btn btn-lg btn-primary">Search</button>
+                    
                 </div>
             </form>
+        </div>
         </div>
     </div>
 </body>

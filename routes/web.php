@@ -18,9 +18,7 @@ use App\Http\Controllers\SearchController;
 // });
 
 
-Route::get('/', function () {
-    return view('mainpage');
-});
+Route::get('/', [SearchController::class,"MainPage"]);
 
 
 Route::view('/searching', "contentshow");
@@ -28,3 +26,14 @@ Route::post('/searching', [SearchController::class, "FetchSearchedData"]);
 Route::get("/services/{search}",[SearchController::class,"FetchServices"]);
 Route::get("/resources/{search}", [SearchController::class, "FetchResources"]);
 Route::get("/materials/{search}", [SearchController::class, "FetchMaterials"]);
+
+
+
+Route::view('/login', "loginform");
+Route::view('/register', "registerform");
+
+
+Route::post('/loginin', [SearchController::class,"login"]);
+Route::post('/registerin', [SearchController::class, "register"]);
+
+Route::get("/logout",[SearchController::class,"logout"]);
