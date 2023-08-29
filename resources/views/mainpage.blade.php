@@ -23,16 +23,29 @@
         .search {
             border: 1px solid black;
         }
-        .containing{
+
+        .containing {
             position: absolute;
             width: 100%;
             height: 100%;
 
         }
+        .centering{
+            margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+        }
+
+        
+
+
     </style>
 </head>
 
-<body  class="antialiased">
+<body class="antialiased">
     @include('header')
     <div
         class="relative sm:flex sm:justify-center sm:items-center min-h-screen bg-dots-darker bg-center bg-gray-100 dark:bg-dots-lighter dark:bg-gray-900 selection:bg-red-500 selection:text-white">
@@ -54,29 +67,67 @@
             </div>
         @endif --}}
 
-        <div >
+        <div class="containing " style="background-image:url({{url('images/'.$randompic.'.jpg')}}); background-size:cover">
 
-        <img class="containing" src="{{url('/images/'.$randompic.".jpg")}}" alt="random image" />
-        <div class="container" style="border:1px">
-            <form action="/searching" method="POST">
-                @csrf
+            {{-- <img class="containing" src="{{ url('/images/' . $randompic . '.jpg') }}" alt="random image" /> --}}
+            <div class="container centering " style="border:1px">
+                <form class="center" action="/searching" method="POST">
+                    @csrf
 
-                <div class="text-center image">
-                    <img src="https://png.pngtree.com/element_our/20200610/ourmid/pngtree-computer-hacker-image_2247730.jpg"
-                        alt="search engine pic" />
-                </div>
-                <div class="input-group mt-3 mb-3">
+                    {{-- <div class="text-center image">
+                        <img src="https://png.pngtree.com/element_our/20200610/ourmid/pngtree-computer-hacker-image_2247730.jpg"
+                            alt="search engine pic" />
+                    </div> --}}
+                    <div class="input-group mt-3 mb-3">
 
-                    <input type="text" name="search" class="form-control" id="exampleFormControlInput1"
-                        placeholder="Search anything you like">
+                        <input type="text" name="search" class="form-control" id="exampleFormControlInput1"
+                            placeholder="Search anything you like">
 
                         <button type="submit" class="btn btn-lg btn-primary">Search</button>
-                </div>
-                <div class="text-center">
-                    
-                </div>
-            </form>
-        </div>
+                        <br>
+
+                         
+                    </div>
+                    <div class="row mx-2">
+                        <div class="col-2">
+                            <span>Sort By: </span>
+                        </div>
+
+                        <div class="col-3">
+                            <select name="category" class="form-select" aria-label="Default select example">
+                                <option value="None">None</option>
+                                <option value="Origin">Origin</option>
+                                <option value="Price">Price</option>
+                                <option value="Availability">Availability</option>
+                            </select>
+                        </div>
+
+                        <div class="col-3">
+                            <select name="sorting" class="form-select" aria-label="Default select example">
+                                <option value="">None</option>
+                                <option value="Ascending">Ascending</option>
+                                <option value="Descending">Descending</option>
+
+                            </select>
+                        </div>
+
+                        <div class="col-3">
+                            <select name="country" class="form-select" aria-label="Default select example">
+                                <option value="Pakistan">Pakistan</option>
+                                <option value="UAE">UAE</option>
+                                <option value="KSA">KSA</option>
+                                <option value="Kuwait">Kuwait</option>
+                                <option value="Egypt">Egypt</option>
+
+                            </select>
+                        </div>
+                    </div>
+                   
+                    <div class="text-center">
+
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </body>

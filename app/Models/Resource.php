@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Resource extends Model
 {
     use HasFactory;
+    public $table = "resources_csv";
+    public $timestamps = false;
 }

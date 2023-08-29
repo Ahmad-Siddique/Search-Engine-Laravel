@@ -23,9 +23,11 @@ Route::get('/', [SearchController::class,"MainPage"]);
 
 Route::view('/searching', "contentshow");
 Route::post('/searching', [SearchController::class, "FetchSearchedData"]);
-Route::get("/services/{search}",[SearchController::class,"FetchServices"]);
-Route::get("/resources/{search}", [SearchController::class, "FetchResources"]);
-Route::get("/materials/{search}", [SearchController::class, "FetchMaterials"]);
+Route::get("/services/{search}/{category}/{sorting}",[SearchController::class,"FetchServices"]);
+Route::get("/resources/{search}/{category}/{sorting}", [SearchController::class, "FetchResources"]);
+Route::get("/materials/{search}/{category}/{sorting}", [SearchController::class, "FetchMaterials"]);
+Route::get("/images/{search}/{category}/{sorting}", [SearchController::class, "FetchImages"]);
+
 
 
 
@@ -37,3 +39,12 @@ Route::post('/loginin', [SearchController::class,"login"]);
 Route::post('/registerin', [SearchController::class, "register"]);
 
 Route::get("/logout",[SearchController::class,"logout"]);
+
+Route::view('/addmaterial', "addmaterialform");
+Route::view('/addresource', "addresourceform");
+Route::view('/addservice', "addserviceform");
+
+Route::post('/addmaterial', [SearchController::class, "addmaterial"]);
+Route::post('/addresource', [SearchController::class, "addresource"]);
+Route::post('/addservice', [SearchController::class, "addservice"]);
+
