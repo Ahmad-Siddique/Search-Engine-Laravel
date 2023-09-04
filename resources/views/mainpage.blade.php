@@ -30,18 +30,15 @@
             height: 100%;
 
         }
-        .centering{
+
+        .centering {
             margin: 0;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
         }
-
-        
-
-
     </style>
 </head>
 
@@ -67,7 +64,8 @@
             </div>
         @endif --}}
 
-        <div class="containing " style="background-image:url({{url('images/'.$randompic.'.jpg')}}); background-size:cover">
+        <div class="containing "
+            style="background-image:url({{ url('images/' . $randompic . '.jpg') }}); background-size:cover">
 
             {{-- <img class="containing" src="{{ url('/images/' . $randompic . '.jpg') }}" alt="random image" /> --}}
             <div class="container centering " style="border:1px">
@@ -78,17 +76,45 @@
                         <img src="https://png.pngtree.com/element_our/20200610/ourmid/pngtree-computer-hacker-image_2247730.jpg"
                             alt="search engine pic" />
                     </div> --}}
-                    <div class="input-group mt-3 mb-3">
+                    
 
-                        <input type="text" name="search" class="form-control" id="exampleFormControlInput1"
-                            placeholder="Search anything you like">
+                        <div class="row">
+                            <div class="col-6">
+                                <input type="text" name="search" class="form-control" id="exampleFormControlInput1"
+                                    placeholder="Search anything you like">
+                            </div>
 
-                        <button type="submit" class="btn btn-lg btn-primary">Search</button>
+                            <div class="col-2">
+                                <select name="category" class="form-select" aria-label="Default select example">
+                                    <option value="Price">Price</option>
+                                    <option value="Origin">Origin</option>
+                                    
+                                    <option value="Availability">Availability</option>
+                                </select>
+                            </div>
+
+                            <div class="col-2">
+                                <select name="sorting" class="form-select" aria-label="Default select example">
+                                    
+                                    <option value="Ascending">Ascending</option>
+                                    <option value="Descending">Descending</option>
+
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <button type="submit" class="btn btn-md btn-primary">Search</button>
+                            </div>
+                            
+                       
+
+
+
+                        
                         <br>
 
-                         
+
                     </div>
-                    <div class="row mx-2">
+                    {{-- <div class="row mx-2">
                         <div class="col-2">
                             <span>Sort By: </span>
                         </div>
@@ -109,9 +135,9 @@
                                 <option value="Descending">Descending</option>
 
                             </select>
-                        </div>
+                        </div> --}}
 
-                        <div class="col-3">
+                        {{-- <div class="col-3">
                             <select name="country" class="form-select" aria-label="Default select example">
                                 <option value="Pakistan">Pakistan</option>
                                 <option value="UAE">UAE</option>
@@ -120,9 +146,9 @@
                                 <option value="Egypt">Egypt</option>
 
                             </select>
-                        </div>
-                    </div>
-                   
+                        </div> --}}
+                    {{-- </div> --}}
+
                     <div class="text-center">
 
                     </div>
@@ -130,6 +156,7 @@
             </div>
         </div>
     </div>
+    @include('footer')
 </body>
 
 </html>

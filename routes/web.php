@@ -44,7 +44,25 @@ Route::view('/addmaterial', "addmaterialform");
 Route::view('/addresource', "addresourceform");
 Route::view('/addservice', "addserviceform");
 
+Route::get('/allmaterial', [SearchController::class, "allmaterial"]);
+Route::get('/allresource', [SearchController::class, "allresource"]);
+Route::get('/allservice', [SearchController::class, "allservice"]);
+
 Route::post('/addmaterial', [SearchController::class, "addmaterial"]);
 Route::post('/addresource', [SearchController::class, "addresource"]);
 Route::post('/addservice', [SearchController::class, "addservice"]);
+
+Route::get('/updatematerial/{id}', [SearchController::class, "updatematerial"]);
+Route::get('/updateresource/{id}', [SearchController::class, "updateresource"]);
+Route::get('/updateservice/{id}', [SearchController::class, "updateservice"]);
+
+Route::post('/postupdatematerial/{id}', [SearchController::class, "postupdatematerial"]);
+Route::post('/postupdateresource/{id}', [SearchController::class, "postupdateresource"]);
+Route::post('/postupdateservice/{id}', [SearchController::class, "postupdateservice"]);
+
+Route::get('/deletematerial/{id}', [SearchController::class, "deletematerial"]);
+Route::get('/deleteresource/{id}', [SearchController::class, "deleteresource"]);
+Route::get('/deleteservice/{id}', [SearchController::class, "deleteservice"]);
+
+Route::post("/expertquery",[SearchController::class,"expertquery"]);
 

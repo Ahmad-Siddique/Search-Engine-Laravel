@@ -97,5 +97,6 @@ button {
 
  
 </div>
+@include('footer')
 </body>
 </html>

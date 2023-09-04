@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AskExpert;
 use App\Models\Material;
 use App\Models\Resource;
 use App\Models\Service;
@@ -85,34 +86,36 @@ class SearchController extends Controller
 
         if ($category == "Price") {
             if ($sorting == "Ascending" || $sorting == "None") {
-                echo "Price Ascending";
-                $resource = $resource->orderBy('Current_Salary', 'ASC');
+                // echo "Price Ascending";
+                $resource = $resource->orderBy('Price_Min', 'ASC');
                 $materials = $materials->orderBy('Price_Min', 'ASC');
                 $services = $services->orderBy('Price_Min', 'ASC');
             } else {
-                echo "Price Descending";
-                $resource = $resource->orderBy('Current_Salary', 'DESC');
+                // echo "Price Descending";
+                $resource = $resource->orderBy('Price_Max', 'DESC');
                 $materials = $materials->orderBy('Price_Max', 'DESC');
                 $services = $services->orderBy('Price_Max', 'DESC');
             }
         } else if ($category == "Origin") {
             if ($sorting == "Ascending" || $sorting == "None") {
-                echo "Origin Ascending";
+                // echo "Origin Ascending";
+                $resource = $resource->orderBy('Nationality', 'ASC');
                 $materials = $materials->orderBy('Origin', 'ASC');
                 $services = $services->orderBy('Location', 'ASC');
             } else {
-                echo "Origin Descending";
+                // echo "Origin Descending";
+                $resource = $resource->orderBy('Nationality', 'DESC');
                 $materials = $materials->orderBy('Origin', 'DESC');
                 $services = $services->orderBy('Location', 'DESC');
             }
         } else if ($category == "Availability") {
             if ($sorting == "Ascending" || $sorting == "None") {
-                echo "Availability Ascending";
+                // echo "Availability Ascending";
                 $resource = $resource->orderBy('Availability', 'ASC');
                 $materials = $materials->orderBy('Availability', 'ASC');
                 // $services = $resource->orderBy('Location', 'asc');
             } else {
-                echo "Availability Descending";
+                // echo "Availability Descending";
                 $resource = $resource->orderBy('Availability', 'DESC');
                 $materials = $materials->orderBy('Availability', 'DESC');
                 // $services = $resource->orderBy('Location', 'desc');
@@ -406,7 +409,7 @@ class SearchController extends Controller
         $resource->Qualification = $req->Qualification;
         $resource->Experience = $req->Experience;
         $resource->Awards = $req->Awards;
-        $resource->Current_Salary = $req->Current_Salary_All;
+        
         $resource->Currency = $req->Currency;
         if ($req->file("Photo")) {
             $resource->Photo = $req->file("Photo")->store('img');
@@ -416,10 +419,11 @@ class SearchController extends Controller
         $resource->Engagement = $req->Engagement_Type;
         $resource->Availability = $req->Availability;
         $resource->Location = $req->Location;
-
+        
         $resource->Nationality = $req->Nationality;
         $resource->Age_Years = $req->Age_Years;
-        $resource->Reference = $req->References;
+        $resource->Price_Min = $req->Price_Min;
+        $resource->Price_Max = $req->Price_Max;
         $resource->Notes = $req->Notes;
         // $resource->Created_On = $req->Created_On;
         // $resource->Update_On = $req->Update_On;
@@ -458,9 +462,174 @@ class SearchController extends Controller
         }
 
 
-        $service->save();
+        $service->save(); 
         return redirect("/addservice");
     }
+
+
+
+    function expertquery(Request $req){
+        echo "This is the requested url";
+        $askexpert = new AskExpert;
+        $askexpert->email = $req->email;
+        $askexpert->question = $req->question;
+        $askexpert->save();
+
+        return back();
+    }
+
+
+
+    function allmaterial(){
+        $data = DB::table("materials_csv")->simplePaginate(10);
+
+        return view("allmaterial",["collection"=>$data]);
+    }
+
+    function allservice()
+    {
+        $data = DB::table("service_csv")->simplePaginate(10);
+
+        return view("allservice", ["collection" => $data]);
+    }
+
+
+    function allresource()
+    {
+        $data = DB::table("resources_csv")->simplePaginate(10);
+
+        return view("allresource", ["collection" => $data]);
+    }
+
+    function updatematerial($id){
+        $material = Material::find($id);
+        
+        return view("updatematerial",["data"=>$material]);
+    }
+
+    function updateservice($id)
+    {
+        $material = Service::find($id);
+        return view("updateservice", ["data" =>$material]);
+    }
+
+
+    function updateresource($id)
+    {
+        $material = Resource::find($id);
+        return view("updateresource", ["data" => $material]);
+    }
+
+
+    function postupdatematerial(Request $req){
+        $material = Material::find($req->id);
+        $material->CSI = $req->csi;
+        $material->Description = $req->description;
+        $material->Qualification = $req->qualifications;
+        $material->Brief_Specs = $req->brief_specs;
+        $material->Function = $req->function;
+        $material->Origin = $req->origin;
+        $material->Currency = $req->currency;
+        $material->Price_Min = $req->price_min;
+        $material->Price_Max = $req->price_max;
+        $material->Unit = $req->unit;
+        $material->Discount = $req->discount;
+        $material->Monthly_Trend = $req->monthly_trend;
+
+        $material->Availability = $req->availability;
+        $material->Alternate = $req->alternate;
+        $material->Alternate_CSI = $req->alternate_csi;
+        $material->Notes = $req->notes;
+        // $material->Created_On = $req->created_on;
+        // $material->Update_On = $req->update_on;
+        $material->Keywords = $req->keywords;
+
+        if ($req->file("Photo")) {
+            $material->Photo = $req->file("Photo")->store('img');
+        }
+
+        $material->save();
+
+        return redirect("/updatematerial/".$req->id);
+
+    }
+
+
+
+
+    function postupdateservice(Request $req)
+    {
+        $service = Service::find($req->id);
+        $service->CSI = $req->CSI;
+        $service->Description = $req->Description;
+        $service->Specifications = $req->Specifications;
+        $service->Unit = $req->Unit;
+        $service->Price_Min = $req->Price_Min;
+        $service->Price_Max = $req->Price_Max;
+        $service->Currency = $req->Currency;
+
+
+        $service->Discount = $req->Discount;
+        $service->Monthly_Trend = $req->Monthly_Trend;
+        $service->Location = $req->Location;
+        $service->Notes = $req->Notes;
+
+
+        // $service->Created_On = $req->Created_On;
+        // $service->Update_On = $req->Update_On;
+        $service->Keywords = $req->Keywords;
+
+        if ($req->file("Photo")) {
+            $service->Photo = $req->file("Photo")->store('img');
+        }
+
+
+        $service->save();
+       
+
+        return redirect("/updateservice/" . $req->id);
+    }
+
+
+
+
+    function postupdateresource(Request $req)
+    {
+        $resource = Resource::find($req->id);
+        $resource->CSI = $req->CSI;
+        $resource->Name = $req->Name;
+        $resource->Qualification = $req->Qualification;
+        $resource->Experience = $req->Experience;
+        $resource->Awards = $req->Awards;
+        
+        $resource->Currency = $req->Currency;
+        if ($req->file("Photo")) {
+            $resource->Photo = $req->file("Photo")->store('img');
+        }
+
+        $resource->Notes = $req->Notes;
+        $resource->Engagement = $req->Engagement_Type;
+        $resource->Availability = $req->Availability;
+        $resource->Location = $req->Location;
+
+        $resource->Nationality = $req->Nationality;
+        $resource->Age_Years = $req->Age_Years;
+        $resource->Price_Min = $req->Price_Min;
+        $resource->Price_Max = $req->Price_Max;
+        $resource->Notes = $req->Notes;
+        // $resource->Created_On = $req->Created_On;
+        // $resource->Update_On = $req->Update_On;
+
+
+        $resource->save();
+        
+
+
+        return redirect("/updateresource/" . $req->id);
+    }
+
+
+    
 
      
 }
