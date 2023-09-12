@@ -65,7 +65,7 @@
         @endif --}}
 
         <div class="containing "
-            style="background-image:url({{ url('images/' . $randompic . '.jpg') }}); background-size:cover">
+            style="background-image:url({{ url(Storage::url($randompic->Photo)) }}); background-size:cover">
 
             {{-- <img class="containing" src="{{ url('/images/' . $randompic . '.jpg') }}" alt="random image" /> --}}
             <div class="container centering " style="border:1px">

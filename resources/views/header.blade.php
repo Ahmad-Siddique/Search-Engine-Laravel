@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">Search Anything</a>
+        <a class="navbar-brand" href="/">Construction Insight</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -43,6 +43,13 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/allservice">All Service</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/alluser">All Users</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/allbackgroundpic">All BG</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page"

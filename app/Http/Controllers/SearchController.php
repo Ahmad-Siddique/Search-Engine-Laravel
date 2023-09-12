@@ -3,14 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\AskExpert;
+use App\Models\Background_Pic;
+use App\Models\Get_Qoute;
 use App\Models\Material;
 use App\Models\Resource;
+use App\Models\Search_History;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Mail;
+
+
 
 
 
@@ -19,8 +25,10 @@ class SearchController extends Controller
 
     function MainPage()
     {
-        $randomnumber = rand(1, 5);
-        return view("mainpage", ["randompic" => $randomnumber]);
+        // $randomnumber = rand(1, 5);
+        $backgroundpic = Background_Pic::all()->random(1)->first();
+        // echo $backgroundpic;
+        return view("mainpage", ["randompic" => $backgroundpic]);
     }
 
 
@@ -63,14 +71,19 @@ class SearchController extends Controller
         $resource = DB::table("resources_csv");
         $materials = DB::table("materials_csv");
         $services = DB::table("service_csv");
-
+        
 
         
 
 
 
         for ($x = 0; $x < count($keys); $x++) {
-
+            $search_history = new Search_History;
+            $search_history->keyword = $keywords[$keys[$x]];
+            if(session("user")){
+                $search_history->user_id = session("user")->id;
+            }
+            $search_history->save();
             $resource = $resource->orWhere("Name", "like", $keywords[$keys[$x]] . "%")->orWhere("Name", "like", "% " . $keywords[$keys[$x]] . "%")
                 ->orWhere("CSI", "like", $keywords[$keys[$x]] . "%")->orWhere("CSI", "like", "% " . $keywords[$keys[$x]] . "%");
 
@@ -204,7 +217,7 @@ class SearchController extends Controller
         $services = DB::table("service_csv");
 
         for ($x = 0; $x < count($keys); $x++) {
-
+            
             $services = $services->orWhere("Description", "like",   $keywords[$keys[$x]] . "%")->orWhere("Description", "like",  "% " . $keywords[$keys[$x]] . "%")
                 ->orWhere("CSI", "like", $keywords[$keys[$x]] . "%")->orWhere("CSI", "like", "% " . $keywords[$keys[$x]] . "%")
                 ->orWhere("Specifications", "like", $keywords[$keys[$x]] . "%")->orWhere("Specifications", "like", "% " . $keywords[$keys[$x]] . "%");
@@ -627,6 +640,134 @@ class SearchController extends Controller
 
         return redirect("/updateresource/" . $req->id);
     }
+
+
+    function getquote(Request $req){
+
+
+        
+        $quote = new Get_Qoute;
+        $quote->email = $req->email;
+        $quote->table_id = $req->table_id;
+        $quote->table_name = $req->table_name;
+        $quote->Name = $req->Name;
+        $quote->Organization = $req->Organization;
+        $quote->Phone_Number = $req->Phone_Number;
+        $quote->Item_Description = $req->Item_Description;
+        $quote->Quantity = $req->Quantity;
+
+
+        $quote->Notes = $req->Notes;
+        
+       
+
+        $quote->save();
+        $email = array("name" => $quote->Name);
+        $user["to"] = $quote->email;
+        Mail::send('quotemail', $email,function($messages) use ($user){
+            $messages->to($user["to"]);
+            $messages->subject("Quotation Response");
+
+        });
+
+
+        return back();
+    }
+
+
+
+
+
+    function allusers()
+    {
+        $data = DB::table("users")->simplePaginate(10);
+
+        return view("allusers", ["collection" => $data]);
+    }
+
+
+    function adduser(Request $req){
+        
+
+        $user = new User;
+        $user->name = $req->name;
+        $user->email = $req->email;
+        $user->password = $req->password;
+        $user->save();
+        return view("adduserform");
+    }
+
+    function updateuser($id)
+    {
+        $material = User::find($id);
+        return view("updateuser", ["data" => $material]);
+    }
+
+    function postupdateuser(Request $req){
+        
+            $user = User::find($req->id);
+            $user->email = $req->email;
+            $user->name = $req->name;
+            
+
+
+            $user->save();
+
+
+
+            return redirect("/updateuser/" . $req->id);
+        
+    }
+
+
+    function allbackgroundpics()
+    {
+        $data = DB::table("backgroundpic")->simplePaginate(10);
+
+        return view("allbackgroundpic", ["collection" => $data]);
+    }
+
+
+    function addbackgroundpic(Request $req)
+    {
+
+
+        $BackgroundPic = new Background_Pic;
+        $BackgroundPic->added_by = $req->added_by;
+        if ($req->file("Photo")) {
+            $BackgroundPic->Photo = $req->file("Photo")->store('public');
+        }
+        $BackgroundPic->save();
+        return view("addbackgroundpicform");
+    }
+
+    function updatebackgroundpic($id)
+    {
+        $material = Background_Pic::find($id);
+        return view("updatebackgroundpic", ["data" => $material]);
+    }
+
+    function postupdatebackgroundpic(Request $req)
+    {
+
+        $BackgroundPic = Background_Pic::find($req->id);
+        if ($req->file("Photo")) {
+            $BackgroundPic->Photo = $req->file("Photo")->store('public');
+        }
+
+
+
+        $BackgroundPic->save();
+
+
+
+        return redirect("/updatebackgroundpic/" . $req->id);
+    }
+
+
+
+
+
 
 
     

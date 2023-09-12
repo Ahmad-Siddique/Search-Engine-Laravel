@@ -78,7 +78,7 @@ button {
     @include('header')
     <div class="container">
   <div class="">
-    <h2 class="mt-4 text-center">Add Service </h2>
+    <h2 class="mt-4 text-center">Update Service </h2>
     <form method="POST" action="/postupdateservice/{{$data["id"]}}" enctype="multipart/form-data">
       @csrf
 
