@@ -5,10 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Material extends Model
+class CurrencyConversion extends Model
 {
     use HasFactory;
-    public $table = "materials_csv";
+    public $table = "currency_conversion";
     public $timestamps = false;
-    protected $fillable = ['CSI'];
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AskExpert;
 use App\Models\Background_Pic;
+use App\Models\CurrencyConversion;
 use App\Models\Get_Qoute;
 use App\Models\Material;
 use App\Models\Resource;
@@ -14,6 +15,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Maatwebsite\Excel\Facades\Excel;
+
+use App\Imports\MaterialsImport;
 use Mail;
 
 
@@ -38,6 +42,7 @@ class SearchController extends Controller
         $data = $req->input("search");
         $category = "None";
         $sorting = "None";
+        $currency = "None";
         $country = "Pakistan";
         if ($req->input("category")) {
 
@@ -58,6 +63,15 @@ class SearchController extends Controller
             $country = $req->input("country");
         }
 
+        if ($req->input("currency")) {
+
+
+            $currency = $req->input("currency");
+        }
+
+        
+        $currency_rate = DB::table("currency_conversion")->where("currency",$currency)->get();
+        // echo $currency_rate;
 
         $data = trim($data);
         $keywords = explode("+", $data);
@@ -158,7 +172,7 @@ class SearchController extends Controller
 
 
         // return $resource;
-        return view("contentshow", ["data" => $data, "resource" => $resource, "services" => $services, "materials" => $materials, "category" => $category, "sorting" => $sorting, "country"=>$country]);
+        return view("contentshow", ["data" => $data, "resource" => $resource, "services" => $services, "materials" => $materials, "category" => $category, "sorting" => $sorting, "country"=>$country, "currency"=>$currency,"currency_rate"=> $currency_rate]);
 
 
         // return view("contentshow", ["data" => $data, "resource" => $resource, "category" => $category, "sorting" => $sorting]);
@@ -410,6 +424,17 @@ class SearchController extends Controller
     }
 
 
+    function addmaterialfile(Request $req)
+    {
+
+        Excel::import(new MaterialsImport,$req->file);
+
+        // $material->save();
+
+        return redirect("/addmaterialfile");
+    }
+
+
 
 
 
@@ -531,6 +556,47 @@ class SearchController extends Controller
     {
         $material = Resource::find($id);
         return view("updateresource", ["data" => $material]);
+    }
+
+
+    function searchmaterial(Request $req){
+        $search = $req->search;
+        // echo $search;
+        $data = DB::table("materials_csv")->orWhere("Description", "like",   $search . "%")->orWhere("Description", "like", "% " .   $search . "%")
+            ->orWhere("CSI", "like", $search . "%")->orWhere("CSI", "like", "% " . $search . "%")
+            ->orWhere("Brief_Specs", "like", $search . "%")->orWhere("Brief_Specs", "like", "% " . $search . "%")
+            ->orWhere("Qualification", "like", $search . "%")->orWhere("Qualification", "like", "% " . $search . "%")
+            ->get();
+
+        // echo $data;
+        return view("allmaterial", ["collection" => $data]);
+        // $material  = Material::
+    }
+
+    function searchresource(Request $req)
+    {
+        $search = $req->search;
+        // echo $search;
+        $data = DB::table("resources_csv")->orWhere("Name", "like", $search . "%")->orWhere("Name", "like", "% " . $search . "%")
+        ->orWhere("CSI", "like", $search . "%")->orWhere("CSI", "like", "% " . $search . "%")->get();
+
+        // echo $data;
+        return view("allresource", ["collection" => $data]);
+        // $material  = Material::
+    }
+
+    function searchservice(Request $req)
+    {
+        $search = $req->search;
+        // echo $search;
+        $data = DB::table("service_csv")->orWhere("Description", "like",   $search . "%")->orWhere("Description", "like",  "% " . $search . "%")
+            ->orWhere("CSI", "like", $search . "%")->orWhere("CSI", "like", "% " . $search . "%")
+            ->orWhere("Specifications", "like", $search . "%")->orWhere("Specifications", "like", "% " . $search . "%")
+            ->get();
+
+        // echo $data;
+        return view("allservice", ["collection" => $data]);
+        // $material  = Material::
     }
 
 
@@ -720,6 +786,21 @@ class SearchController extends Controller
     }
 
 
+    function searchuser(Request $req)
+    {
+        $search = $req->search;
+        // echo $search;
+        $data = DB::table("users")->orWhere("email", "like",   $search . "%")->orWhere("email", "like",  "% " . $search . "%")
+            ->orWhere("name", "like", $search . "%")->orWhere("name", "like", "% " . $search . "%")
+            
+            ->get();
+
+        // echo $data;
+        return view("allusers", ["collection" => $data]);
+        // $material  = Material::
+    }
+
+
     function allbackgroundpics()
     {
         $data = DB::table("backgroundpic")->simplePaginate(10);
@@ -765,6 +846,252 @@ class SearchController extends Controller
     }
 
 
+
+
+
+
+
+
+
+    function allaskexpert()
+    {
+        $data = DB::table("askexpert")->simplePaginate(10);
+
+        return view("allaskexpert", ["collection" => $data]);
+    }
+
+
+    // function addaskexpert(Request $req)
+    // {
+
+
+    //     $user = new User;
+    //     $user->name = $req->name;
+    //     $user->email = $req->email;
+    //     $user->password = $req->password;
+    //     $user->save();
+    //     return view("adduserform");
+    // }
+
+    function updateaskexpert($id)
+    {
+        $material = AskExpert::find($id);
+        return view("updateaskexpert", ["data" => $material]);
+    }
+
+    function postupdateaskexpert(Request $req)
+    {
+
+        $user = AskExpert::find($req->id);
+        $user->email = $req->email;
+        $user->question = $req->question;
+        $user->answer = $req->answer;
+
+
+
+        $user->save();
+
+
+
+        return redirect("/updateaskexpert/" . $req->id);
+    }
+
+
+    function searchaskexpert(Request $req)
+    {
+        $search = $req->search;
+        // echo $search;
+        $data = DB::table("askexpert")->orWhere("email", "like",   $search . "%")->orWhere("email", "like",  "% " . $search . "%")
+            ->orWhere("question", "like", $search . "%")->orWhere("question", "like", "% " . $search . "%")
+
+            ->get();
+
+        // echo $data;
+        return view("allaskexpert", ["collection" => $data]);
+        // $material  = Material::
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function allgetquote()
+    {
+        $data = DB::table("get_quote")->simplePaginate(10);
+
+        return view("allgetquote", ["collection" => $data]);
+    }
+
+
+    // function addaskexpert(Request $req)
+    // {
+
+
+    //     $user = new User;
+    //     $user->name = $req->name;
+    //     $user->email = $req->email;
+    //     $user->password = $req->password;
+    //     $user->save();
+    //     return view("adduserform");
+    // }
+
+    function updategetquote($id)
+    {
+        $material = Get_Qoute::find($id);
+        return view("updategetquote", ["data" => $material]);
+    }
+
+    function postupdategetquote(Request $req)
+    {
+
+        $quote = Get_Qoute::find($req->id);
+        $quote->email = $req->email;
+        
+        $quote->answer = $req->answer;
+
+
+
+        $quote->save();
+
+
+        $email = array("name" => $quote->Name,"answer"=>$quote->answer);
+        $user["to"] = $quote->email;
+        Mail::send('QuoteResponse', $email, function ($messages) use ($user) {
+            $messages->to($user["to"]);
+            $messages->subject("Quotation Response");
+        });
+
+
+
+        return redirect("/updategetquote/" . $req->id);
+    }
+
+
+    function searchgetquote(Request $req)
+    {
+        $search = $req->search;
+        // echo $search;
+        $data = DB::table("get_quote")->orWhere("email", "like",   $search . "%")->orWhere("email", "like",  "% " . $search . "%")
+            ->orWhere("question", "like", $search . "%")->orWhere("question", "like", "% " . $search . "%")
+
+            ->get();
+
+        // echo $data;
+        return view("allgetquote", ["collection" => $data]);
+        // $material  = Material::
+    }
+
+
+
+
+    function allsearchkeyword()
+    {
+        $data = DB::table("search_history")->simplePaginate(10);
+
+        return view("allsearchkeyword", ["collection" => $data]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    function allcurrencyconversion()
+    {
+        $data = DB::table("currency_conversion")->simplePaginate(10);
+
+        return view("allcurrencyconversion", ["collection" => $data]);
+    }
+
+
+    function addcurrencyconversion(Request $req)
+    {
+
+
+        $user = new CurrencyConversion();
+        $user->currency = $req->currency;
+        $user->proc_nice = $req->proc_nice;
+        
+        $user->save();
+        return view("addcurrencyconversion");
+    }
+
+    function updatecurrencyconversion($id)
+    {
+        $material = CurrencyConversion::find($id);
+        return view("updatecurrencyconversion", ["data" => $material]);
+    }
+
+    function postupdatecurrencyconversion(Request $req)
+    {
+
+        $quote = CurrencyConversion::find($req->id);
+        $quote->currency = $req->currency;
+
+        $quote->price = $req->price;
+
+
+
+        $quote->save();
+
+        
+
+
+        return redirect("/updatecurrencyconversion/" . $req->id);
+    }
+
+
+    function searchcurrencyconversion(Request $req)
+    {
+        $search = $req->search;
+        // echo $search;
+        $data = DB::table("currency_conversion")->orWhere("currency", "like",   $search . "%")->orWhere("currency", "like",  "% " . $search . "%")
+            ->orWhere("price", "like", $search . "%")->orWhere("price", "like", "% " . $search . "%")
+
+            ->get();
+
+        // echo $data;
+        return view("allcurrencyconversion", ["collection" => $data]);
+        // $material  = Material::
+    }
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    
 
 
 

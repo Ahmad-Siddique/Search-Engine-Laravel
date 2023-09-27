@@ -84,6 +84,12 @@ button {
   <div class="">
     <h2 class="mt-4 text-center">All Service </h2>
     <button class="btn btn-success d-flex"><a class="atag" href="/addservice"> Add Service</a></button>
+    <div class="mt-3 mb-3">
+      <form method="POST">
+        @csrf
+        <input class="text-center" type="text" class="form-control" id="username" name="search" placeholder="Search Service">
+      </form>
+    </div>
     <table class="table">
         <thead>
         <tr>
@@ -114,6 +120,7 @@ button {
     </tr>
     @endforeach
 </table>
+{{ $collection->links() }}
   </div>
 
   

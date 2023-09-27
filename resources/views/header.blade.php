@@ -1,3 +1,20 @@
+<style>
+    .dropdown-submenu {
+        position: relative;
+    }
+
+    .dropdown-submenu .dropdown-menu {
+        top: 10%;
+        left: 100%;
+        margin-top: -1px;
+    }
+
+    .navbar-nav li:hover>ul.dropdown-menu {
+        display: block;
+    }
+</style>
+
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
         <a class="navbar-brand" href="/">Construction Insight</a>
@@ -32,9 +49,94 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
                         <a class="nav-link active" data-bs-toggle="modal" data-bs-target="#exampleModal"
-                            aria-current="page" href="/login">Ask an expert</a>
+                            aria-current="page" href="/login">Ask An Expert</a>
                     </li>
                     @if (session('user'))
+                        <li class="nav-item dropdown ">
+                            <a href="#" id="menu" data-bs-toggle="dropdown"
+                                class="nav-link active dropdown-toggle" data-bs-display="static">Control Panel</a>
+                            <ul class="dropdown-menu  ">
+                                <li class="dropdown-submenu ">
+                                    <a href="#" data-bs-toggle="dropdown"
+                                        class="dropdown-item dropdown-toggle">Data Management</a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="/allmaterial" class="dropdown-item">Material</a>
+                                        </li>
+                                        <li>
+                                            <a href="/allresource" class="dropdown-item">Resource</a>
+                                        </li>
+                                        <li>
+                                            <a href="/allservice" class="dropdown-item">Service</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a href="#" data-bs-toggle="dropdown"
+                                        class="dropdown-item dropdown-toggle">User Management</a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="/adduser" class="dropdown-item">Add User</a>
+                                        </li>
+                                        <li>
+                                            <a href="/alluser" class="dropdown-item">All Users</a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a href="#" data-bs-toggle="dropdown"
+                                        class="dropdown-item dropdown-toggle">Questions and Answers</a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="/allaskexpert" class="dropdown-item">Ask An Expert</a>
+                                        </li>
+                                        <li>
+                                            <a href="/allgetquote" class="dropdown-item">Get a Qoute</a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a href="#" data-bs-toggle="dropdown"
+                                        class="dropdown-item dropdown-toggle">Settings</a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="/allbackgroundpic" class="dropdown-item">Background Images</a>
+                                        </li>
+                                        <li>
+                                            <a href="/allgetquote" class="dropdown-item">Logo</a>
+                                        </li>
+                                        <li>
+                                            <a href="/allcurrencyconversion" class="dropdown-item">Currency Conversion</a>
+                                        </li>
+                                        <li>
+                                            <a href="/allsearchkeyword" class="dropdown-item">Search Keywords</a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+
+                                <li class="dropdown-submenu">
+                                    <a href="#" data-bs-toggle="dropdown"
+                                        class="dropdown-item dropdown-toggle">Privacy and Security</a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="/allbackgroundpic" class="dropdown-item">Privacy Policy</a>
+                                        </li>
+                                        <li>
+                                            <a href="/allgetquote" class="dropdown-item">Logo</a>
+                                        </li>
+                                        <li>
+                                            <a href="/allgetquote" class="dropdown-item">Currency Conversion</a>
+                                        </li>
+
+
+
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/allmaterial">All Material</a>
                         </li>
@@ -51,9 +153,26 @@
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/allbackgroundpic">All BG</a>
                         </li>
+
+
+
+
+
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page"
-                                href="#">{{ session('user')->name }}</a>
+
+
+                            <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ session('user')->name }}
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="#">Profile</a></li>
+                                <li><a class="dropdown-item" href="#">Search History</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="#">Color Scheme</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/logout">Logout</a>
@@ -73,7 +192,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -82,7 +202,7 @@
                 </div>
                 <div class="modal-body">
                     <form method="POST" action="/expertquery">
-                      @csrf
+                        @csrf
                         @if (session('user'))
                             <div class="mb-3">
                                 <label for="exampleInputEmail1" class="form-label">Email address</label>
@@ -114,4 +234,18 @@
             </div>
         </div>
     </div>
+
+
+
 </nav>
+
+
+<script>
+    let dropdowns = document.querySelectorAll('.dropdown-toggle')
+    dropdowns.forEach((dd) => {
+        dd.addEventListener('click', function(e) {
+            var el = this.nextElementSibling
+            el.style.display = el.style.display === 'block' ? 'none' : 'block'
+        })
+    })
+</script>

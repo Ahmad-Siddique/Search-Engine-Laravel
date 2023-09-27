@@ -71,10 +71,6 @@ button {
   text-decoration: none;
 }
 
-.atag{
-    color:white; text-decoration:none
-}
-
 </style>
 
 </head>
@@ -82,35 +78,25 @@ button {
     @include('header')
     <div class="container">
   <div class="">
-    <h2 class="mt-4 text-center">All Background Picture </h2>
-    <button class="btn btn-success d-flex"><a class="atag" href="/addbackgroundpic"> Add Background Picture</a></button>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Added by</th>
-            <th>Background Picture</th>
-            
-            <th>Update</th>
-            <th>Delete</th>
-        </tr>
-        </thead>
+    <h2 class="mt-4 text-center">Answer the Question </h2>
+    <form method="POST" action="/postupdateaskexpert/{{$data["id"]}}" >
+      @csrf
 
+      <input  type="hidden" name="id" value={{$data["id"]}} />
+      <label for="username">Email</label>
+      <input type="text" readonly class="form-control" value={{$data["email"]}} id="username" name="email" placeholder="Enter CSI">
 
-   
+      <label for="text">Question</label>
+      <input type="text"readonly class="form-control" value={{$data["question"]}} id="password" name="question" placeholder="Enter your Description">
 
-    @foreach($collection as $data)
-    <tr>
-        <td>{{$data->id}}</td>
-        <td>{{$data->added_by}}</td>
-        <td><img width="100" height="100" src="{{Storage::url($data->Photo)}}" alt="bg" /></td>
+      <label for="password" class="form-label">Answer</label>
+      <input type="text" class="form-control"  id="answer" name="answer" placeholder="Enter your Answer">
+
       
-        <td><button><a style="color:white; text-decoration:none" href={{"updatebackgroundpic/".$data->id}} >Update</a></button></td>
-        <td><button class="btn btn-danger"><a style="color:white; text-decoration:none" href={{"/deleteuser/".$data->id}} >Delete</a></button></td>
-    </tr>
-    @endforeach
-</table>
-{{ $collection->links() }}
+
+      <button type="submit">Submit</button>
+    </form>
+    
   </div>
 
   

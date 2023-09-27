@@ -79,7 +79,7 @@
                     
 
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-5">
                                 <input type="text" name="search" class="form-control" id="exampleFormControlInput1"
                                     placeholder="Search anything you like">
                             </div>
@@ -101,7 +101,19 @@
 
                                 </select>
                             </div>
+
+
                             <div class="col-2">
+                                <select name="currency" class="form-select" aria-label="Default select example">
+                                    
+                                    <option value="Ascending">dollar</option>
+                                    <option value="Descending">pakistani rupees</option>
+                                    <option value="Descending">riyal</option>
+
+                                </select>
+                            </div>
+
+                            <div class="col-1">
                                 <button type="submit" class="btn btn-md btn-primary">Search</button>
                             </div>
                             

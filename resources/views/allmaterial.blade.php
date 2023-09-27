@@ -84,6 +84,15 @@ button {
   <div class="">
     <h2 class="mt-4 text-center">All Material </h2>
     <button class="btn btn-success d-flex"><a class="atag" href="/addmaterial"> Add Material</a></button>
+    <button class="btn btn-success d-flex"><a class="atag" href="/addmaterialfile"> Add Material With File</a></button>
+
+     <div class="mt-3 mb-3">
+      <form method="POST">
+        @csrf
+        <input class="text-center" type="text" class="form-control" id="username" name="search" placeholder="Search Material">
+      </form>
+    </div>
+
     <table class="table">
         <thead>
         <tr>
@@ -100,20 +109,25 @@ button {
 
 
    
+    @if(@empty($collection))
+        <div>No material records found</div>
+    @else
+      @foreach($collection as $data)
+      <tr>
+          <td>{{$data->id}}</td>
+          <td>{{$data->CSI}}</td>
+          <td>{{$data->Qualification}}</td>
+          <td>{{$data->Brief_Specs}}</td>
+          <td>{{$data->Price_Min}}</td>
+          <td>{{$data->Price_Max}}</td>
+          <td><button><a style="color:white; text-decoration:none" href={{"updatematerial/".$data->id}} >Update</a></button></td>
+          <td><button class="btn btn-danger"><a style="color:white; text-decoration:none" href={{"/deleteuser/".$data->id}} >Delete</a></button></td>
+      </tr>
+      @endforeach
 
-    @foreach($collection as $data)
-    <tr>
-        <td>{{$data->id}}</td>
-        <td>{{$data->CSI}}</td>
-        <td>{{$data->Qualification}}</td>
-        <td>{{$data->Brief_Specs}}</td>
-        <td>{{$data->Price_Min}}</td>
-        <td>{{$data->Price_Max}}</td>
-        <td><button><a style="color:white; text-decoration:none" href={{"updatematerial/".$data->id}} >Update</a></button></td>
-        <td><button class="btn btn-danger"><a style="color:white; text-decoration:none" href={{"/deleteuser/".$data->id}} >Delete</a></button></td>
-    </tr>
-    @endforeach
+    @endif
 </table>
+{{ $collection->links() }}
   </div>
 
   

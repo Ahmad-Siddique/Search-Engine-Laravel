@@ -95,13 +95,9 @@ button {
         <thead>
         <tr>
             <th>ID</th>
-            <th>CSI</th>
-            <th>Name</th>
-            <th>Qualification</th>
-            <th>PRICE MIN</th>
-            <th>PRICE MAX</th>
-            <th>Update</th>
-            <th>Delete</th>
+            <th>Keyword</th>
+            <th>User ID</th>
+            
         </tr>
         </thead>
 
@@ -111,18 +107,14 @@ button {
     @foreach($collection as $data)
     <tr>
         <td>{{$data->id}}</td>
-        <td>{{$data->CSI}}</td>
-        <td>{{$data->Name}}</td>
-        <td>{{$data->Qualification}}</td>
-        <td>{{$data->Price_Min}}</td>
-        <td>{{$data->Price_Max}}</td>
-        <td><button><a style="color:white; text-decoration:none" href={{"updateresource/".$data->id}} >Update</a></button></td>
-        <td><button class="btn btn-danger"><a style="color:white; text-decoration:none" href={{"/deleteuser/".$data->id}} >Delete</a></button></td>
+        <td>{{$data->keyword}}</td>
+        <td>{{$data->user_id}}</td>
+       
+        
     </tr>
     @endforeach
 </table>
 {{ $collection->links() }}
-
   </div>
 
   

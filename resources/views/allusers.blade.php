@@ -83,8 +83,15 @@ button {
     <div class="container">
   <div class="">
     <h2 class="mt-4 text-center">All Users </h2>
+    
     <button class="btn btn-success d-flex"><a class="atag" href="/adduser"> Add User</a></button>
-    <table class="table">
+    <div class="mt-3 mb-3">
+      <form method="POST">
+        @csrf
+        <input class="text-center" type="text" class="form-control" id="username" name="search" placeholder="Search User">
+      </form>
+    </div>
+  <table class="table">
         <thead>
         <tr>
             <th>ID</th>
@@ -110,6 +117,7 @@ button {
     </tr>
     @endforeach
 </table>
+{{ $collection->links() }}
   </div>
 
   
