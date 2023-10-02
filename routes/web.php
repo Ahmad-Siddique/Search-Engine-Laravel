@@ -47,6 +47,8 @@ Route::view('/addresource', "addresourceform");
 Route::view('/addservice', "addserviceform");
 Route::view('/adduser', "adduserform");
 Route::view('/addbackgroundpic', "addbackgroundpicform");
+Route::view('/updateprofile', "updateuserinfo");
+Route::view('/usercolorscheme', "usercolorscheme");
 
 Route::get('/allmaterial', [SearchController::class, "allmaterial"]);
 Route::get('/allresource', [SearchController::class, "allresource"]);
@@ -85,6 +87,7 @@ Route::post('/postupdatebackgroundpic/{id}', [SearchController::class, "postupda
 Route::post('/postupdateaskexpert/{id}', [SearchController::class, "postupdateaskexpert"]);
 Route::post('/postupdategetquote/{id}', [SearchController::class, "postupdategetquote"]);
 Route::post('/postupdatecurrencyconversion/{id}', [SearchController::class, "postupdatecurrencyconversion"]);
+Route::post('/postupdateuserinfo/{id}', [SearchController::class, "postupdateuserinfo"]);
 
 Route::get('/deletematerial/{id}', [SearchController::class, "deletematerial"]);
 Route::get('/deleteresource/{id}', [SearchController::class, "deleteresource"]);
@@ -102,5 +105,7 @@ Route::post('/allcurrencyconversion', [SearchController::class, "searchcurrencyc
 
 
 Route::post("/expertquery",[SearchController::class,"expertquery"]);
+Route::get("/usersearchhistory",[SearchController::class,"usersearchhistory"]);
+Route::post("/colorscheme", [SearchController::class, "colorscheme"]);
 
 

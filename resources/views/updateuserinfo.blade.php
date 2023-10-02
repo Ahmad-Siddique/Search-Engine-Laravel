@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    @include('bootstraplink')
 
 <style>
     body {
@@ -13,15 +14,15 @@
   padding: 0;
 }
 
-.container {
+/* .container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-}
+} */
 
 .card {
-  width: 300px;
+  width: 500px;
   background-color: #fff;
   padding: 20px;
   border-radius: 10px;
@@ -74,42 +75,28 @@ button {
 
 </head>
 <body>
+    @include('header')
     <div class="container">
-  <div class="card">
-    <h2>Register Form</h2>
-
-    <form method="POST" action="/registerin">
+  <div class="">
+    <h2 class="mt-4 text-center">Update User </h2>
+    <form method="POST" action="/postupdateuserinfo/{{session("user")->id}}" enctype="multipart/form-data">
       @csrf
-      <label for="username">Email</label>
-      <input type="text" id="username" name="email" placeholder="Enter your email">
-
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" placeholder="Enter your username">
 
 
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" placeholder="Enter your password">
+       <input  type="hidden" name="id" value={{session("user")->id}} />
+      <label for="username">Name</label>
+      <input type="text" class="form-control" value={{session("user")->name}} id="username" name="name" placeholder="Enter Name">
 
-      <div class="mt-3 mb-3">
-                    <select name="role" class="form-select" aria-label="Default select example">
-                        <option value="user" >
-                            User</option>
-                        <option value="subscriber" >Subscriber
-                        </option>
+      <label for="password">Email</label>
+      <input type="text" class="form-control" value={{session("user")->email}} id="password" name="email" placeholder="Enter your Email">
 
-                      
-
-                    </select>
-                </div>
-
-
-
-      <button type="submit">Register</button>
+     
+      <button type="submit">Submit</button>
     </form>
-    <div class="switch">Already have an account? <a href="/login">Login here</a></div>
+    
   </div>
 
- 
+  
 </div>
 @include('footer')
 </body>

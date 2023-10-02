@@ -97,6 +97,9 @@ button {
             <th>ID</th>
             <th>Keyword</th>
             <th>User ID</th>
+            <th>Country</th>
+            <th>City</th>
+            <th>Zip Code</th>
             
         </tr>
         </thead>
@@ -109,6 +112,9 @@ button {
         <td>{{$data->id}}</td>
         <td>{{$data->keyword}}</td>
         <td>{{$data->user_id}}</td>
+        <td>{{$data->countryName}}</td>
+        <td>{{$data->cityName}}</td>
+        <td>{{$data->zipCode}}</td>
        
         
     </tr>

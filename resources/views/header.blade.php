@@ -14,8 +14,11 @@
     }
 </style>
 
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+@if(session("user"))
+    <nav class="navbar navbar-expand-lg navbar-dark bg-{{session("user")->color}}">
+@else
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">    
+@endif
     <div class="container-fluid">
         <a class="navbar-brand" href="/">Construction Insight</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -104,9 +107,9 @@
                                         <li>
                                             <a href="/allbackgroundpic" class="dropdown-item">Background Images</a>
                                         </li>
-                                        <li>
+                                        {{-- <li>
                                             <a href="/allgetquote" class="dropdown-item">Logo</a>
-                                        </li>
+                                        </li> --}}
                                         <li>
                                             <a href="/allcurrencyconversion" class="dropdown-item">Currency Conversion</a>
                                         </li>
@@ -124,12 +127,7 @@
                                         <li>
                                             <a href="/allbackgroundpic" class="dropdown-item">Privacy Policy</a>
                                         </li>
-                                        <li>
-                                            <a href="/allgetquote" class="dropdown-item">Logo</a>
-                                        </li>
-                                        <li>
-                                            <a href="/allgetquote" class="dropdown-item">Currency Conversion</a>
-                                        </li>
+                                       
 
 
 
@@ -137,7 +135,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item">
+                        {{-- <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/allmaterial">All Material</a>
                         </li>
                         <li class="nav-item">
@@ -152,7 +150,7 @@
 
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/allbackgroundpic">All BG</a>
-                        </li>
+                        </li> --}}
 
 
 
@@ -166,12 +164,12 @@
                                 {{ session('user')->name }}
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="#">Profile</a></li>
-                                <li><a class="dropdown-item" href="#">Search History</a></li>
+                                <li><a class="dropdown-item" href="/updateprofile">Profile</a></li>
+                                <li><a class="dropdown-item" href="/usersearchhistory">Search History</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li><a class="dropdown-item" href="#">Color Scheme</a></li>
+                                <li><a class="dropdown-item" href="/usercolorscheme">Color Scheme</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">

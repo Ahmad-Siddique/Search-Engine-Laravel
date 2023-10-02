@@ -15,8 +15,8 @@ class MaterialsImport implements ToModel
     public function model(array $row)
     {
         // return new Material([
-        //     "CSI"=> $row["CSI"],
-        //     "Description" => $row["CSI"],
+        //     "CSI"=> $row['CSI'],
+        //     "Description" => $row["Description"],
         //     "Qualification" => $row["Qualification"],
         //     "Brief_Specs" => $row["Brief_Specs"],
         //     "Function" => $row["Function"],
@@ -30,13 +30,13 @@ class MaterialsImport implements ToModel
         //     "Availability" => $row["Availability"],
         //     "Alternate" => $row["Alternate"],
         //     "Alternate_CSI" => $row["Alternate_CSI"],
-        //     "Price_Max" => $row["Price_Max"],
+        
         //     "Notes" => $row["Notes"],
         //     "Keywords" => $row["Keywords"],
         //     "Photo" => $row["Photo"],
         // ]);
 
-
+        // dd($row);
         return new Material([
             "CSI" => $row[0],
             "Description" => $row[1],
@@ -45,17 +45,18 @@ class MaterialsImport implements ToModel
             "Function" => $row[4],
             "Origin" => $row[5],
             "Currency" => $row[6],
-            "Price_Min" => $row[7],
-            "Price_Max" => $row[8],
+            "Price_Min" => floatval($row[7]),
+            "Price_Max" => floatval($row[8]),
             "Unit" => $row[9],
-            "Discount" => $row[10],
-            "Monthly_Trend" => $row[11],
+            "Discount" => floatval($row[10]),
+            "Monthly_Trend" => floatval($row[11]),
             "Availability" => $row[12],
             "Alternate" => $row[13],
             "Alternate_CSI" => $row[14],
-            "Price_Max" => $row[15],
-            "Notes" => $row[16],
-            "Keywords" => $row[17],
+            
+            "Notes" => $row[15],
+            "Keywords" => $row[16],
+            "Photo" => $row[17]
             // "Photo" => $row[18],
         ]);
     }

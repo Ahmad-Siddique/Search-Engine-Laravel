@@ -16,8 +16,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Maatwebsite\Excel\Facades\Excel;
+use Stevebauman\Location\Facades\Location;
 
 use App\Imports\MaterialsImport;
+
+use Illuminate\Support\Facades\Session;
 use Mail;
 
 
@@ -85,15 +88,26 @@ class SearchController extends Controller
         $resource = DB::table("resources_csv");
         $materials = DB::table("materials_csv");
         $services = DB::table("service_csv");
-        
-
-        
 
 
+        $ip = $req->ip();
+        // echo $ip;
+        $currentUserInfo = Location::get($ip);
+        // echo $currentUserInfo;
 
         for ($x = 0; $x < count($keys); $x++) {
             $search_history = new Search_History;
             $search_history->keyword = $keywords[$keys[$x]];
+            if($currentUserInfo){
+
+            
+            $search_history->countryName = $currentUserInfo->countryName;
+            $search_history->regionName  = $currentUserInfo->regionName ;
+            $search_history->cityName  = $currentUserInfo->cityName ;
+            $search_history->zipCode = $currentUserInfo->zipCode;
+            $search_history->ip = $ip;
+            }
+            
             if(session("user")){
                 $search_history->user_id = session("user")->id;
             }
@@ -372,6 +386,7 @@ class SearchController extends Controller
         $user->name = $req->username;
         $user->email = $req->email;
         $user->password = $req->password;
+        $user->role = $req->role;
         $user->save();
         return redirect("/login");
         // return $req->input("password");
@@ -427,7 +442,7 @@ class SearchController extends Controller
     function addmaterialfile(Request $req)
     {
 
-        Excel::import(new MaterialsImport,$req->file);
+        Excel::import(new MaterialsImport,$req->file('file'));
 
         // $material->save();
 
@@ -786,6 +801,30 @@ class SearchController extends Controller
     }
 
 
+    function postupdateuserinfo(Request $req)
+    {
+
+        $user = User::find($req->id);
+        $user->email = $req->email;
+        $user->name = $req->name;
+        $sessionuser = session("user");
+        $sessionuser["name"] = $req->name;
+        $sessionuser["email"] = $req->email;
+       
+        session("user",$sessionuser);
+        
+        
+        echo $req->name;
+
+
+        $user->save();
+
+
+
+        return redirect('/updateprofile');
+    }
+
+
     function searchuser(Request $req)
     {
         $search = $req->search;
@@ -1007,6 +1046,13 @@ class SearchController extends Controller
         return view("allsearchkeyword", ["collection" => $data]);
     }
 
+    function usersearchhistory()
+    {
+        $data = DB::table("search_history")->where("user_id",session("user")->id)->simplePaginate();
+        // dd($data);
+        return view("usersearchhistory", ["collection" => $data]);
+    }
+
 
 
 
@@ -1075,6 +1121,21 @@ class SearchController extends Controller
         // echo $data;
         return view("allcurrencyconversion", ["collection" => $data]);
         // $material  = Material::
+    }
+
+
+
+    function colorscheme(Request $req){
+        $user = User::find(session("user")->id);
+        $usercolor = $req->color;
+        $sessionuser = session("user");
+        $sessionuser["color"] = $usercolor;
+       
+        $user->color = $req->color;
+        $user->save();
+        session("user", $sessionuser);
+
+        return redirect("/usercolorscheme");
     }
 
 

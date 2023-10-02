@@ -82,26 +82,22 @@ button {
     @include('header')
     <div class="container">
   <div class="">
-    <h2 class="mt-4 text-center">All Resource </h2>
+    <h2 class="mt-4 text-center">All Searches </h2>
     
-    <button class="btn btn-success d-flex"><a class="atag" href="/addresource"> Add Resource</a></button>
+    {{-- <button class="btn btn-success d-flex"><a class="atag" href="/addresource"> Add Resource</a></button> --}}
     <div class="mt-3 mb-3">
-      <form method="POST">
+      {{-- <form method="POST">
         @csrf
-        <input class="text-center" type="text" class="form-control" id="username" name="search" placeholder="Search Resource">
-      </form>
+        <input class="text-center" type="text" class="form-control" id="username" name="search" placeholder="Search Keyword">
+      </form> --}}
     </div>
     <table class="table">
         <thead>
         <tr>
             <th>ID</th>
-            <th>CSI</th>
-            <th>Name</th>
-            <th>Qualification</th>
-            <th>PRICE MIN</th>
-            <th>PRICE MAX</th>
-            <th>Update</th>
-            <th>Delete</th>
+            <th>Keyword</th>
+            
+            
         </tr>
         </thead>
 
@@ -111,18 +107,14 @@ button {
     @foreach($collection as $data)
     <tr>
         <td>{{$data->id}}</td>
-        <td>{{$data->CSI}}</td>
-        <td>{{$data->Name}}</td>
-        <td>{{$data->Qualification}}</td>
-        <td>{{number_format($data->Price_Min)}}</td>
-        <td>{{number_format($data->Price_Max)}}</td>
-        <td><button><a style="color:white; text-decoration:none" href={{"updateresource/".$data->id}} >Update</a></button></td>
-        <td><button class="btn btn-danger"><a style="color:white; text-decoration:none" href={{"/deleteuser/".$data->id}} >Delete</a></button></td>
+        <td>{{$data->keyword}}</td>
+       
+       
+        
     </tr>
     @endforeach
 </table>
 {{ $collection->links() }}
-
   </div>
 
   
