@@ -192,14 +192,21 @@ class SearchController extends Controller
         // return view("contentshow", ["data" => $data, "resource" => $resource, "category" => $category, "sorting" => $sorting]);
     }
 
-    function FetchResources($search, $category, $sorting)
+    function FetchResources($search, $category, $sorting,$currency)
     {
         // $response = Http::post("http://127.0.0.1:7000/searchingdata", [
         //     "search" => $search
         // ]);
         // $keywords = $response->json();
         $data = trim($search);
+        if ($currency) {
 
+
+            $currencyrate = $currency;
+        }
+
+
+        $currency_rate = DB::table("currency_conversion")->where("currency", $currencyrate)->get();
         $keywords = explode("+", $data);
         $keys = array_keys($keywords);
 
@@ -227,12 +234,21 @@ class SearchController extends Controller
         $resource = $resource->simplePaginate(3);
 
         // return $resource;
-        return view("contentshow", ["data" => $search, "resource" => $resource, "category" => $category, "sorting" => $sorting]);
+        return view("contentshow", ["data" => $search, "resource" => $resource, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate]);
     }
 
-    function FetchServices($search, $category, $sorting)
+    function FetchServices($search, $category, $sorting,$currency)
     {
 
+
+        if ($currency) {
+
+
+            $currencyrate = $currency;
+        }
+
+
+        $currency_rate = DB::table("currency_conversion")->where("currency", $currencyrate)->get();
         // $response = Http::post("http://127.0.0.1:7000/searchingdata", [
         //     "search" => $search
         // ]);
@@ -277,11 +293,20 @@ class SearchController extends Controller
 
         $services = $services->simplePaginate(3);
         // return $resource;
-        return view("contentshow", ["data" => $search, "services" => $services, "category" => $category, "sorting" => $sorting]);
+        return view("contentshow", ["data" => $search, "services" => $services, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate]);
     }
 
-    function FetchMaterials($search, $category, $sorting)
+    function FetchMaterials($search, $category, $sorting,$currency)
     {
+
+        if ($currency) {
+
+
+            $currencyrate = $currency;
+        }
+
+
+        $currency_rate = DB::table("currency_conversion")->where("currency", $currencyrate)->get();
         // $response = Http::post("http://127.0.0.1:7000/searchingdata", [
         //     "search" => $search
         // ]);
@@ -333,7 +358,7 @@ class SearchController extends Controller
         $materials = $materials->simplePaginate(3);
 
         // return $resource;
-        return view("contentshow", ["data" => $search, "materials" => $materials, "category" => $category, "sorting" => $sorting]);
+        return view("contentshow", ["data" => $search, "materials" => $materials, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate]);
     }
 
     function FetchImages($search, $category, $sorting){

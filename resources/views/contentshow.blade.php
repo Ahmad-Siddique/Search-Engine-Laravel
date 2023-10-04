@@ -206,18 +206,22 @@
 
         <div>
             @isset($data)
+          
                 <button type="submit" style="border:none; " class="btn btn-lg btn-outline-dark">All</button>
 
+
+          
+
                 <a style="border:none;text-decoration:none" class="btn btn-lg btn-outline-dark"
-                    href="/materials/{{ $data }}/{{ $category }}/{{ $sorting }}">Materials</a>
+                    href="/materials/{{ $data }}/{{ $category }}/{{ $sorting }}/{{$currency}}">Materials</a>
                 <a style="border:none;text-decoration:none" class="btn btn-lg btn-outline-dark"
-                    href="/resources/{{ $data }}/{{ $category }}/{{ $sorting }}">Resources</a>
+                    href="/resources/{{ $data }}/{{ $category }}/{{ $sorting }}/{{$currency}}">Resources</a>
                 <a style="border:none;text-decoration:none" class="btn btn-lg btn-outline-dark"
-                    href="/services/{{ $data }}/{{ $category }}/{{ $sorting }}">Services</a>
+                    href="/services/{{ $data }}/{{ $category }}/{{ $sorting }}/{{$currency}}">Services</a>
                 <a style="border:none;text-decoration:none" class="btn btn-lg btn-outline-dark"
-                    href="/resources/{{ $data }}/{{ $category }}/{{ $sorting }}">Gallery</a>
+                    href="/resources/{{ $data }}/{{ $category }}/{{ $sorting }}/{{$currency}}">Gallery</a>
                 <a style="border:none;text-decoration:none" class="btn btn-lg btn-outline-dark"
-                    href="/resources/{{ $data }}/{{ $category }}/{{ $sorting }}">Documents</a>
+                    href="/resources/{{ $data }}/{{ $category }}/{{ $sorting }}/{{$currency}}">Documents</a>
             @endisset
         </div>
 

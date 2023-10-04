@@ -24,10 +24,10 @@ Route::post("/getquote", [SearchController::class, "getquote"]);
 
 Route::view('/searching', "contentshow");
 Route::post('/searching', [SearchController::class, "FetchSearchedData"]);
-Route::get("/services/{search}/{category}/{sorting}",[SearchController::class,"FetchServices"]);
-Route::get("/resources/{search}/{category}/{sorting}", [SearchController::class, "FetchResources"]);
-Route::get("/materials/{search}/{category}/{sorting}", [SearchController::class, "FetchMaterials"]);
-Route::get("/images/{search}/{category}/{sorting}", [SearchController::class, "FetchImages"]);
+Route::get("/services/{search}/{category}/{sorting}/{currency}",[SearchController::class,"FetchServices"]);
+Route::get("/resources/{search}/{category}/{sorting}/{currency}", [SearchController::class, "FetchResources"]);
+Route::get("/materials/{search}/{category}/{sorting}/{currency}", [SearchController::class, "FetchMaterials"]);
+Route::get("/images/{search}/{category}/{sorting}/{currency}", [SearchController::class, "FetchImages"]);
 
 
 

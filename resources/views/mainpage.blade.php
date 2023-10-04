@@ -106,9 +106,9 @@
                             <div class="col-2">
                                 <select name="currency" class="form-select" aria-label="Default select example">
                                     
-                                    <option value="Ascending">dollar</option>
-                                    <option value="Descending">pakistani rupees</option>
-                                    <option value="Descending">riyal</option>
+                                    <option value="pakistani rupees">pakistani rupees</option>
+                                    <option value="dollar">dollar </option>
+                                    <option value="riyal">riyal</option>
 
                                 </select>
                             </div>
