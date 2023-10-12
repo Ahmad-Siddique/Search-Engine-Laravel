@@ -90,6 +90,19 @@ button {
       <label for="password">Email</label>
       <input type="text" class="form-control" value={{$data["email"]}} id="password" name="email" placeholder="Enter your Description">
 
+      <div class="mb-2">
+                        <select name="role" class="form-select" aria-label="Default select example">
+
+                            <option value="admin" @if ($data["role"] == 'admin') ? selected : null @endif>admin
+                            </option>
+                            <option value="user" @if ($data["role"] == 'user') ? selected : null @endif>user
+                            </option>
+                            <option value="datamanager" @if ($data["role"] == 'datamanager') ? selected : null @endif>
+                                datamanager</option>
+                            <option value="subscriber" @if ($data["role"] == 'subscriber') ? selected : null @endif>
+                                subscriber</option>
+                        </select>
+                    </div>
      
       <button type="submit">Submit</button>
     </form>

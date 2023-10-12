@@ -124,7 +124,7 @@ button {
           <td>{{number_format($data->Price_Min)}}</td>
           <td>{{number_format($data->Price_Max)}}</td>
           <td><button><a style="color:white; text-decoration:none" href={{"updatematerial/".$data->id}} >Update</a></button></td>
-          <td><button class="btn btn-danger"><a style="color:white; text-decoration:none" href={{"/deleteuser/".$data->id}} >Delete</a></button></td>
+          <td><button class="btn btn-danger"><a style="color:white; text-decoration:none" href={{"/deletematerial/".$data->id}} >Delete</a></button></td>
       </tr>
       @endforeach
 

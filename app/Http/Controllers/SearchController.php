@@ -231,7 +231,7 @@ class SearchController extends Controller
 
 
 
-        $resource = $resource->simplePaginate(3);
+        $resource = $resource->paginate(3);
 
         // return $resource;
         return view("contentshow", ["data" => $search, "resource" => $resource, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate]);
@@ -291,7 +291,7 @@ class SearchController extends Controller
         }
 
 
-        $services = $services->simplePaginate(3);
+        $services = $services->paginate(3);
         // return $resource;
         return view("contentshow", ["data" => $search, "services" => $services, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate]);
     }
@@ -355,7 +355,7 @@ class SearchController extends Controller
         }
 
 
-        $materials = $materials->simplePaginate(3);
+        $materials = $materials->paginate(3);
 
         // return $resource;
         return view("contentshow", ["data" => $search, "materials" => $materials, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate]);
@@ -559,14 +559,14 @@ class SearchController extends Controller
 
 
     function allmaterial(){
-        $data = DB::table("materials_csv")->simplePaginate(10);
+        $data = DB::table("materials_csv")->paginate(10);
 
         return view("allmaterial",["collection"=>$data]);
     }
 
     function allservice()
     {
-        $data = DB::table("service_csv")->simplePaginate(10);
+        $data = DB::table("service_csv")->paginate(10);
 
         return view("allservice", ["collection" => $data]);
     }
@@ -574,7 +574,7 @@ class SearchController extends Controller
 
     function allresource()
     {
-        $data = DB::table("resources_csv")->simplePaginate(10);
+        $data = DB::table("resources_csv")->paginate(10);
 
         return view("allresource", ["collection" => $data]);
     }
@@ -786,7 +786,7 @@ class SearchController extends Controller
 
     function allusers()
     {
-        $data = DB::table("users")->simplePaginate(10);
+        $data = DB::table("users")->paginate(10);
 
         return view("allusers", ["collection" => $data]);
     }
@@ -799,6 +799,7 @@ class SearchController extends Controller
         $user->name = $req->name;
         $user->email = $req->email;
         $user->password = $req->password;
+        $user->role = $req->role;
         $user->save();
         return view("adduserform");
     }
@@ -814,6 +815,7 @@ class SearchController extends Controller
             $user = User::find($req->id);
             $user->email = $req->email;
             $user->name = $req->name;
+        $user->role = $req->role;
             
 
 
@@ -867,7 +869,7 @@ class SearchController extends Controller
 
     function allbackgroundpics()
     {
-        $data = DB::table("backgroundpic")->simplePaginate(10);
+        $data = DB::table("backgroundpic")->paginate(10);
 
         return view("allbackgroundpic", ["collection" => $data]);
     }
@@ -919,7 +921,7 @@ class SearchController extends Controller
 
     function allaskexpert()
     {
-        $data = DB::table("askexpert")->simplePaginate(10);
+        $data = DB::table("askexpert")->paginate(10);
 
         return view("allaskexpert", ["collection" => $data]);
     }
@@ -997,7 +999,7 @@ class SearchController extends Controller
 
     function allgetquote()
     {
-        $data = DB::table("get_quote")->simplePaginate(10);
+        $data = DB::table("get_quote")->paginate(10);
 
         return view("allgetquote", ["collection" => $data]);
     }
@@ -1066,14 +1068,14 @@ class SearchController extends Controller
 
     function allsearchkeyword()
     {
-        $data = DB::table("search_history")->simplePaginate(10);
+        $data = DB::table("search_history")->paginate(10);
 
         return view("allsearchkeyword", ["collection" => $data]);
     }
 
     function usersearchhistory()
     {
-        $data = DB::table("search_history")->where("user_id",session("user")->id)->simplePaginate();
+        $data = DB::table("search_history")->where("user_id",session("user")->id)->paginate();
         // dd($data);
         return view("usersearchhistory", ["collection" => $data]);
     }
@@ -1091,7 +1093,7 @@ class SearchController extends Controller
 
     function allcurrencyconversion()
     {
-        $data = DB::table("currency_conversion")->simplePaginate(10);
+        $data = DB::table("currency_conversion")->paginate(10);
 
         return view("allcurrencyconversion", ["collection" => $data]);
     }
@@ -1161,6 +1163,36 @@ class SearchController extends Controller
         session("user", $sessionuser);
 
         return redirect("/usercolorscheme");
+    }
+
+
+
+    function deleteuser($id)
+    {
+        $data = User::find($id);
+        $data->delete();
+        return redirect("alluser");
+    }
+
+    function deletematerial($id)
+    {
+        $data = Material::find($id);
+        $data->delete();
+        return redirect("allmaterial");
+    }
+
+    function deleteresource($id)
+    {
+        $data = Resource::find($id);
+        $data->delete();
+        return redirect("allresource");
+    }
+
+    function deleteservice($id)
+    {
+        $data = Service::find($id);
+        $data->delete();
+        return redirect("allservice");
     }
 
 

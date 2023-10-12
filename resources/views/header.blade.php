@@ -54,7 +54,9 @@
                         <a class="nav-link active" data-bs-toggle="modal" data-bs-target="#exampleModal"
                             aria-current="page" href="/login">Ask An Expert</a>
                     </li>
-                    @if (session('user'))
+                    @if(session("user"))
+                    
+                    @if (session('user')->role=="admin" || session("user")->role=="datamanager")
                         <li class="nav-item dropdown ">
                             <a href="#" id="menu" data-bs-toggle="dropdown"
                                 class="nav-link active dropdown-toggle" data-bs-display="static">Control Panel</a>
@@ -74,6 +76,7 @@
                                         </li>
                                     </ul>
                                 </li>
+                                @if(session("user")->role=="admin")
                                 <li class="dropdown-submenu">
                                     <a href="#" data-bs-toggle="dropdown"
                                         class="dropdown-item dropdown-toggle">User Management</a>
@@ -133,8 +136,11 @@
 
                                     </ul>
                                 </li>
+                                @endif
                             </ul>
                         </li>
+                        @endif
+                        @endif
                         {{-- <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/allmaterial">All Material</a>
                         </li>
@@ -155,7 +161,7 @@
 
 
 
-
+                        @if(session("user"))
                         <li class="nav-item">
 
 

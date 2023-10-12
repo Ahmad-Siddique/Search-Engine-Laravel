@@ -258,8 +258,12 @@
                                             <div>{{ $item->Name }}</div>
                                             <div>CSI Code | {{ $item->CSI }}</div>
                                             <div>{{ $item->Qualification }}</div>
-                                            <div>Price Min | {{ number_format($item->Price_Min) }}</div>
-                                            <div>Price Max | {{ number_format($item->Price_Max) }}</div>
+                                            <div>Price Min | {{ number_format(fdiv($item->Price_Min,$currency_rate[0]->price)) }}</div>
+                                            @if(session("user"))
+                                            @if(session("user")->role=="admin" || session("user")->role=="datamanager" || session("user")->role=="subscriber")
+                                            <div>Price Max | {{ number_format(fdiv($item->Price_Min,$currency_rate[0]->price)) }}</div>
+                                            @endif
+                                            @endif
 
 
 
@@ -448,9 +452,13 @@
 
                                             <div class="collapse" id="gte{{ $item->id }}">
 
-                                                <div>Price Min <strong>{{ number_format($item->Price_Min) }}</strong> |
+                                                <div>Price Min <strong>{{ number_format(fdiv($item->Price_Min,$currency_rate[0]->price)) }}</strong> |
                                                 </div>
-                                                <div>Price Max <strong>{{ number_format($item->Price_Max) }}</strong> |
+                                                 @if(session("user"))
+                                            @if(session("user")->role=="admin" || session("user")->role=="datamanager" || session("user")->role=="subscriber")
+                                            <div>Price Max | {{ number_format(fdiv($item->Price_Min,$currency_rate[0]->price)) }}</div>
+                                            @endif
+                                            @endif
                                                 </div>
 
 
@@ -503,7 +511,11 @@
                                             <div class="collapse" id="gte{{ $item->id }}">
                                                 <div>Price Min <strong>{{ number_format(fdiv($item->Price_Min,$currency_rate[0]->price)) }}</strong> |
                                                 </div>
-                                                <div>Price Max <strong>{{ number_format(fdiv($item->Price_Max,$currency_rate[0]->price)) }}</strong> |
+                                                 @if(session("user"))
+                                            @if(session("user")->role=="admin" || session("user")->role=="datamanager" || session("user")->role=="subscriber")
+                                            <div>Price Max | {{ number_format(fdiv($item->Price_Min,$currency_rate[0]->price)) }}</div>
+                                            @endif
+                                            @endif
                                                 </div>
                                                 <div>Availability <strong>{{ $item->Availability }}</strong> </div>
 

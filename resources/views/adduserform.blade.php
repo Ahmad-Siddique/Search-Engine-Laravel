@@ -90,7 +90,14 @@ button {
       <label for="password" class="form-label">Password</label>
       <input type="password" class="form-control" id="password" name="password" placeholder="Enter your Password">
 
-      
+       <label for="password" class="form-label">Role</label>
+      <select name="role" class="form-select mb-3" aria-label="Default select example">
+                                    <option value="user">user</option>
+                                    <option value="subscriber">subscriber</option>
+                                    <option value="admin">admin</option>
+                                    
+                                    <option value="datamanager">datamanager</option>
+                                </select>
       <button type="submit">Submit</button>
     </form>
     
