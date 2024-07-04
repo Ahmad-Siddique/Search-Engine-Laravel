@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     @include('bootstraplink')
-    <title>Document</title>
+    <title>Construction Insight</title>
 </head>
 
 <body>
@@ -98,14 +98,12 @@
 
                     <div class="col-2">
                         <select name="currency" class="form-select" aria-label="Default select example">
-                            <option value="pakistani rupees" @if ($currency == 'pakistani rupees') ? selected : null @endif>
-                                pakistani rupees</option>
-                            <option value="dollar" @if ($currency == 'dollar') ? selected : null @endif>dollar
-                            </option>
-
-                            <option value="riyal" @if ($currency == 'riyal') ? selected : null @endif>riyal
-                            </option>
-
+                            @foreach ($currencies as $currencyOption)
+                                <option value="{{ $currencyOption }}"
+                                    {{ $currency == $currencyOption ? 'selected' : '' }}>
+                                    {{ $currencyOption }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -204,24 +202,92 @@
                 </div>
             @endif --}}
 
-        <div>
+        <div style="display: flex;">
             @isset($data)
-          
-                <button type="submit" style="border:none; " class="btn btn-lg btn-outline-dark">All</button>
+                <form action="/searching" method="POST" style="margin-right: 10px; display: flex; align-items: center;">
+
+                    @csrf
 
 
-          
+                    <input hidden type="text" name="search" value="{{ $data }}" class="form-control"
+                        id="exampleFormControlInput1" placeholder="Search anything you like" />
+
+                    <select hidden name="category" class="form-select" aria-label="Default select example">
+
+                        <option value="Origin" @if ($category == 'Origin') ? selected : null @endif>
+                            Origin
+                        </option>
+                        <option value="Price" @if ($category == 'Price') ? selected : null @endif>
+                            Price
+                        </option>
+                        <option value="Availability" @if ($category == 'Availability') ? selected : null @endif>
+                            Availability</option>
+                    </select>
+
+
+
+                    <select hidden name="sorting" class="form-select" aria-label="Default select example">
+
+                        <option value="Ascending" @if ($sorting == 'Ascending') ? selected : null @endif>
+                            Ascending</option>
+                        <option value="Descending" @if ($sorting == 'Descending') ? selected : null @endif>
+                            Descending</option>
+
+                    </select>
+
+
+
+                    <select hidden name="currency" class="form-select" aria-label="Default select example">
+                        <option value="pakistani rupees" @if ($currency == 'pakistani rupees') ? selected : null @endif>
+                            pakistani rupees</option>
+                        <option value="dollar" @if ($currency == 'dollar') ? selected : null @endif>
+                            dollar
+                        </option>
+
+                        <option value="riyal" @if ($currency == 'riyal') ? selected : null @endif>
+                            riyal
+                        </option>
+
+                    </select>
+
+
+
+
+
+
+
+
+                    <button type="submit" style="border:none; " class="btn btn-lg btn-outline-dark">All</button>
+
+                </form>
+
+
+                @php
+                    $moduleNames = session(
+                        'module_names',
+                        (object) [
+                            'material' => 'Materials',
+                            'resource' => 'Resources',
+                            'service' => 'Services',
+                            'equipment' => 'Equipments',
+                            'reference' => 'Reference',
+                            'gallery' => 'Gallery',
+                        ],
+                    );
+                @endphp
 
                 <a style="border:none;text-decoration:none" class="btn btn-lg btn-outline-dark"
-                    href="/materials/{{ $data }}/{{ $category }}/{{ $sorting }}/{{$currency}}">Materials</a>
+                    href="/materials/{{ $data }}/{{ $category }}/{{ $sorting }}/{{ $currency }}">{{ $moduleNames->material }}</a>
                 <a style="border:none;text-decoration:none" class="btn btn-lg btn-outline-dark"
-                    href="/resources/{{ $data }}/{{ $category }}/{{ $sorting }}/{{$currency}}">Resources</a>
+                    href="/resources/{{ $data }}/{{ $category }}/{{ $sorting }}/{{ $currency }}">{{ $moduleNames->resource }}</a>
                 <a style="border:none;text-decoration:none" class="btn btn-lg btn-outline-dark"
-                    href="/services/{{ $data }}/{{ $category }}/{{ $sorting }}/{{$currency}}">Services</a>
+                    href="/services/{{ $data }}/{{ $category }}/{{ $sorting }}/{{ $currency }}">{{ $moduleNames->service }}</a>
                 <a style="border:none;text-decoration:none" class="btn btn-lg btn-outline-dark"
-                    href="/resources/{{ $data }}/{{ $category }}/{{ $sorting }}/{{$currency}}">Gallery</a>
+                    href="/equipments/{{ $data }}/{{ $category }}/{{ $sorting }}/{{ $currency }}">{{ $moduleNames->equipment }}</a>
                 <a style="border:none;text-decoration:none" class="btn btn-lg btn-outline-dark"
-                    href="/resources/{{ $data }}/{{ $category }}/{{ $sorting }}/{{$currency}}">Documents</a>
+                    href="/gallery/{{ $data }}/{{ $category }}/{{ $sorting }}/{{ $currency }}">{{ $moduleNames->gallery }}</a>
+                <a style="border:none;text-decoration:none" class="btn btn-lg btn-outline-dark"
+                    href="/documents/{{ $data }}/{{ $category }}/{{ $sorting }}/{{ $currency }}">{{ $moduleNames->reference }}</a>
             @endisset
         </div>
 
@@ -247,9 +313,97 @@
                     @endisset
 
 
+                    @isset($materials)
+                        @if (!$materials->isEmpty())
+                            <h3 class="mb-3">{{ $moduleNames->material }}</h3>
+                            @foreach ($materials as $item)
+                                <div class="row">
+                                    <div class="col-8">
+                                        <div class="mb-2 mt-2">
+
+                                            <div>{{ $item->Description }}</div>
+                                            <div>CSI Code | {{ $item->CSI }}</div>
+                                            <div>Description | {{ $item->Description }}</div>
+                                            {{-- <div>{{ $item->Qualification }}</div> --}}
+                                            <div>Origin | {{ $item->Origin }}</div>
+                                            <div>Currency | {{ $currency_rate[0]->currency }}</div>
+                                            <div>Monthly Trend | {{ $item->Monthly_Trend }}</div>
+                                            <div class="collapse" id="gte{{ $item->id }}">
+                                                <div>Price Min |
+                                                    {{-- {{$item->Price_Min}} --}}
+                                                    <strong>{{ number_format(fdiv($item->Price_Min, $currency_rate[0]->price)) }}</strong>
+
+                                                </div>
+                                                @if (session('user'))
+                                                    @if (session('user')->role == 'admin' || session('user')->role == 'datamanager' || session('user')->role == 'subscriber')
+                                                        <div>Price Max |
+                                                            {{ number_format(fdiv($item->Price_Max, $currency_rate[0]->price)) }}
+                                                        </div>
+
+                                                        @if ($item->CSI)
+                                                            <div>
+                                                                <a href="/monthly_trend/materials/{{ $item->CSI }}">Monthly
+                                                                    Price Trend</a>
+                                                                <strong>{{ $item->Monthly_Trend }}</strong>
+                                                            </div>
+                                                        @endif
+                                                    @endif
+                                                @endif
+                                            </div>
+                                            <div>Availability <strong>{{ $item->Availability }}</strong> </div>
+
+
+                                        </div>
+
+                                        <a class="btn btn-primary" data-bs-toggle="collapse"
+                                            data-bs-target="#gte{{ $item->id }}" role="button"
+                                            aria-expanded="false" aria-controls="collapse">
+                                            Read More/Less
+                                        </a>
+
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-3">
+                                    <?php
+                                    // Check if $item->Photo exists, is not empty, and is not just a "-"
+                                    if (isset($item->Photo) && !empty($item->Photo) && $item->Photo !== '-' && $item->Photo !== 'Photo') {
+                                        // Debugging output
+                                        // echo '<p>Original Photo: ' . htmlspecialchars($item->Photo) . '</p>';
+                                    
+                                        // Determine if $item->Photo is a URL
+                                        if (filter_var($item->Photo, FILTER_VALIDATE_URL)) {
+                                            // $item->Photo is a URL, display the image
+                                            // echo "<img src='" . htmlspecialchars($item->Photo) . "' alt='cement pic' width='100%' />";
+                                        } else {
+                                            // Adjust the file path to remove 'public/' prefix and prepare for public/storage
+                                            $filePath = str_replace('public/', 'storage/', $item->Photo);
+                                            $encodedFilePath = rawurlencode($filePath); // Encode the file path for URL
+                                    
+                                            // echo '<p>Adjusted File Path: ' . htmlspecialchars($filePath) . '</p>';
+                                            // echo '<p>Encoded File Path: ' . htmlspecialchars($encodedFilePath) . '</p>';
+                                    
+                                            // // Display the image with the correct path
+                                            echo "<img src='" . htmlspecialchars('/' . $filePath) . "' alt='cement pic' width='100%' />";
+                                        }
+                                    } else {
+                                        // $item->Photo does not exist, is empty, or is "-", optional: display a placeholder or nothing
+                                    }
+                                    ?>
+                                </div>
+                            @endforeach
+                        @endif
+                        {{-- {{ $materials->links() }} --}}
+                    @endisset
+
+
+
+
                     @isset($resource)
                         @if (!$resource->isEmpty())
-                            <h3 class="mb-3">Resources</h3>
+                            <h3 class="mb-3">{{ $moduleNames->resource }}</h3>
                             @foreach ($resource as $item)
                                 <div class="row">
                                     <div class="col-8">
@@ -258,18 +412,29 @@
                                             <div>{{ $item->Name }}</div>
                                             <div>CSI Code | {{ $item->CSI }}</div>
                                             <div>{{ $item->Qualification }}</div>
-                                            <div>Price Min | {{ number_format(fdiv($item->Price_Min,$currency_rate[0]->price)) }}</div>
-                                            @if(session("user"))
-                                            @if(session("user")->role=="admin" || session("user")->role=="datamanager" || session("user")->role=="subscriber")
-                                            <div>Price Max | {{ number_format(fdiv($item->Price_Min,$currency_rate[0]->price)) }}</div>
-                                            @endif
+                                            <div>Price Min |
+                                                {{ number_format(fdiv($item->Price_Min, $currency_rate[0]->price)) }}</div>
+                                            @if (session('user'))
+                                                @if (session('user')->role == 'admin' || session('user')->role == 'datamanager' || session('user')->role == 'subscriber')
+                                                    <div>Price Max |
+                                                        {{ number_format(fdiv($item->Price_Max, $currency_rate[0]->price)) }}
+                                                    </div>
+
+                                                    @if ($item->CSI)
+                                                        <div>
+                                                            <a href="/monthly_trend/resources/{{ $item->CSI }}">Monthly
+                                                                Price Trend</a>
+                                                            {{-- <strong>{{ $item->Monthly_Trend }}</strong> --}}
+                                                        </div>
+                                                    @endif
+                                                @endif
                                             @endif
 
 
 
                                             <div class="collapse" id="gte{{ $item->id }}">
                                                 <div>
-                                                    <div>Currency | {{ $item->Currency }}</div>
+                                                    <div>Currency | {{ $currency_rate[0]->currency }}</div>
                                                     <div>Location | {{ $item->Location }}</div>
                                                     <div>Availability | {{ $item->Availability }}</div>
                                                 </div>
@@ -285,9 +450,7 @@
                                                 aria-expanded="false" aria-controls="collapse">
                                                 Read More/Less
                                             </a>
-                                            <div>
-                                                <hr>
-                                            </div>
+
 
 
 
@@ -310,7 +473,8 @@
                                                                 @if (session('user'))
                                                                     <div class="mb-3">
                                                                         <label for="exampleInputEmail1"
-                                                                            class="form-label">Email address</label>
+                                                                            class="form-label">Email
+                                                                            address</label>
                                                                         <input type="email" name="email"
                                                                             value={{ session('user')->email }} readonly
                                                                             class="form-control" id="exampleInputEmail1"
@@ -320,7 +484,8 @@
                                                                 @else
                                                                     <div class="mb-3">
                                                                         <label for="exampleInputEmail1"
-                                                                            class="form-label">Email address</label>
+                                                                            class="form-label">Email
+                                                                            address</label>
                                                                         <input type="email" name="email"
                                                                             class="form-control" id="exampleInputEmail1"
                                                                             aria-describedby="emailHelp">
@@ -358,7 +523,8 @@
 
                                                                 <div class="mb-3">
                                                                     <label for="exampleInputEmail1"
-                                                                        class="form-label">Phone number</label>
+                                                                        class="form-label">Phone
+                                                                        number</label>
                                                                     <input type="text" name="Phone_Number"
                                                                         class="form-control" id="exampleInputEmail1"
                                                                         aria-describedby="emailHelp">
@@ -368,7 +534,8 @@
 
                                                                 <div class="mb-3">
                                                                     <label for="exampleInputEmail1"
-                                                                        class="form-label">Item Description</label>
+                                                                        class="form-label">Item
+                                                                        Description</label>
                                                                     <input type="text" name="Item_Description"
                                                                         class="form-control" id="exampleInputEmail1"
                                                                         aria-describedby="emailHelp">
@@ -423,12 +590,35 @@
                                     </div>
 
                                     <div class="col-3">
-                                        <a href="/images/{{ $data }}/{{ $category }}/{{ $sorting }}">
-                                            <img src="https://media.istockphoto.com/id/1448349078/photo/cement-bags-o-sacks-isolated-on-white.jpg?s=612x612&w=0&k=20&c=F5_VosP_qf9xYgyVth-Vs3OsSjaL0gZBMae39zZ3Zmg="
-                                                alt="cement pic" width="100%" />
-                                        </a>
+                                        <?php
+                                        // Check if $item->Photo exists, is not empty, and is not just a "-"
+                                        if (isset($item->Photo) && !empty($item->Photo) && $item->Photo !== '-' && $item->Photo !== 'Photo') {
+                                            // Debugging output
+                                            // echo '<p>Original Photo: ' . htmlspecialchars($item->Photo) . '</p>';
+                                        
+                                            // Determine if $item->Photo is a URL
+                                            if (filter_var($item->Photo, FILTER_VALIDATE_URL)) {
+                                                // $item->Photo is a URL, display the image
+                                                // echo "<img src='" . htmlspecialchars($item->Photo) . "' alt='cement pic' width='100%' />";
+                                            } else {
+                                                // Adjust the file path to remove 'public/' prefix and prepare for public/storage
+                                                $filePath = str_replace('public/', 'storage/', $item->Photo);
+                                                $encodedFilePath = rawurlencode($filePath); // Encode the file path for URL
+                                        
+                                                // echo '<p>Adjusted File Path: ' . htmlspecialchars($filePath) . '</p>';
+                                                // echo '<p>Encoded File Path: ' . htmlspecialchars($encodedFilePath) . '</p>';
+                                        
+                                                // // Display the image with the correct path
+                                                echo "<img src='" . htmlspecialchars('/' . $filePath) . "' alt='cement pic' width='100%' />";
+                                            }
+                                        } else {
+                                            // $item->Photo does not exist, is empty, or is "-", optional: display a placeholder or nothing
+                                        }
+                                        ?>
                                     </div>
-                                </div>
+                                    <div>
+                                        <hr>
+                                    </div>
                             @endforeach
                         @endif
                         {{-- {{ $resource->links() }} --}}
@@ -436,7 +626,7 @@
 
                     @isset($services)
                         @if (!$services->isEmpty())
-                            <h3 class="mb-3">Services</h3>
+                            <h3 class="mb-3">{{ $moduleNames->service }}</h3>
                             @foreach ($services as $item)
                                 <div class="row">
                                     <div class="col-8">
@@ -447,46 +637,78 @@
                                             <div>Unit | {{ $item->Unit }}</div>
                                             <div>{{ $item->Specifications }}</div>
                                             <div>Location | {{ $item->Location }}</div>
-                                            <div>Currency | {{ $item->Currency }}</div>
+                                            <div>Currency | {{ $currency_rate[0]->currency }}</div>
 
 
                                             <div class="collapse" id="gte{{ $item->id }}">
 
-                                                <div>Price Min <strong>{{ number_format(fdiv($item->Price_Min,$currency_rate[0]->price)) }}</strong> |
-                                                </div>
-                                                 @if(session("user"))
-                                            @if(session("user")->role=="admin" || session("user")->role=="datamanager" || session("user")->role=="subscriber")
-                                            <div>Price Max | {{ number_format(fdiv($item->Price_Min,$currency_rate[0]->price)) }}</div>
-                                            @endif
-                                            @endif
-                                                </div>
+                                                <div>Price Min |
+                                                    <strong>{{ number_format(fdiv($item->Price_Min, $currency_rate[0]->price)) }}</strong>
 
-
-                                                <div>Monthly Price <a href="">Trend</a>
-                                                    <strong>{{ $item->Monthly_Trend }}</strong>
                                                 </div>
+                                                @if (session('user'))
+                                                    @if (session('user')->role == 'admin' || session('user')->role == 'datamanager' || session('user')->role == 'subscriber')
+                                                        <div>Price Max |
+                                                            {{ number_format(fdiv($item->Price_Max, $currency_rate[0]->price)) }}
+                                                        </div>
 
+                                                        @if ($item->CSI)
+                                                            <div>
+                                                                <a href="/monthly_trend/services/{{ $item->CSI }}">Monthly
+                                                                    Price Trend</a>
+                                                                {{-- <strong>{{ $item->Monthly_Trend }}</strong> --}}
+                                                            </div>
+                                                        @endif
+                                                    @endif
+                                                @endif
                                             </div>
 
-                                            <a class="btn btn-primary" data-bs-toggle="collapse"
-                                                data-bs-target="#gte{{ $item->id }}" role="button"
-                                                aria-expanded="false" aria-controls="collapse">
-                                                Read More/Less
-                                            </a>
 
-
-                                            <div>
-                                                <hr>
-                                            </div>
+                                            {{-- <div>Monthly Price <a href="">Trend</a>
+                                                <strong>{{ $item->Monthly_Trend }}</strong>
+                                            </div> --}}
 
                                         </div>
 
+                                        <a class="btn btn-primary" data-bs-toggle="collapse"
+                                            data-bs-target="#gte{{ $item->id }}" role="button"
+                                            aria-expanded="false" aria-controls="collapse">
+                                            Read More/Less
+                                        </a>
+
+
+
+
                                     </div>
 
-                                    <div class="col-3">
-                                        <img src="https://media.istockphoto.com/id/1448349078/photo/cement-bags-o-sacks-isolated-on-white.jpg?s=612x612&w=0&k=20&c=F5_VosP_qf9xYgyVth-Vs3OsSjaL0gZBMae39zZ3Zmg="
-                                            alt="cement pic" width="100%" />
-                                    </div>
+                                </div>
+
+                                <div class="col-3">
+                                    <?php
+                                    // Check if $item->Photo exists, is not empty, and is not just a "-"
+                                    if (isset($item->Photo) && !empty($item->Photo) && $item->Photo !== '-' && $item->Photo !== 'Photo') {
+                                        // Debugging output
+                                        // echo '<p>Original Photo: ' . htmlspecialchars($item->Photo) . '</p>';
+                                    
+                                        // Determine if $item->Photo is a URL
+                                        if (filter_var($item->Photo, FILTER_VALIDATE_URL)) {
+                                            // $item->Photo is a URL, display the image
+                                            // echo "<img src='" . htmlspecialchars($item->Photo) . "' alt='cement pic' width='100%' />";
+                                        } else {
+                                            // Adjust the file path to remove 'public/' prefix and prepare for public/storage
+                                            $filePath = str_replace('public/', 'storage/', $item->Photo);
+                                            $encodedFilePath = rawurlencode($filePath); // Encode the file path for URL
+                                    
+                                            // echo '<p>Adjusted File Path: ' . htmlspecialchars($filePath) . '</p>';
+                                            // echo '<p>Encoded File Path: ' . htmlspecialchars($encodedFilePath) . '</p>';
+                                    
+                                            // // Display the image with the correct path
+                                            echo "<img src='" . htmlspecialchars('/' . $filePath) . "' alt='cement pic' width='100%' />";
+                                        }
+                                    } else {
+                                        // $item->Photo does not exist, is empty, or is "-", optional: display a placeholder or nothing
+                                    }
+                                    ?>
                                 </div>
                             @endforeach
                         @endif
@@ -494,79 +716,354 @@
                     @endisset
 
 
-                    @isset($materials)
-                        @if (!$materials->isEmpty())
-                            <h3 class="mb-3">Materials</h3>
-                            @foreach ($materials as $item)
+
+
+
+                    @isset($equipments)
+                        @if (!$equipments->isEmpty())
+                            <h3 class="mb-3">{{ $moduleNames->equipment }}</h3>
+                            @foreach ($equipments as $item)
                                 <div class="row">
                                     <div class="col-8">
                                         <div class="mb-2 mt-2">
 
                                             <div>{{ $item->Description }}</div>
                                             <div>CSI Code | {{ $item->CSI }}</div>
-                                            <div>{{ $item->Qualification }}</div>
-                                            <div>Origin | {{ $item->Origin }}</div>
-                                            <div>Currency | {{ $item->Currency }}</div>
-                                            <div>Monthly Trend | {{ $item->Monthly_Trend }}</div>
+                                            <div>Unit | {{ $item->Unit }}</div>
+                                            <div>{{ $item->Specifications }}</div>
+                                            <div>Location | {{ $item->Location }}</div>
+                                            <div>Currency | {{ $currency_rate[0]->currency }}</div>
+
+
                                             <div class="collapse" id="gte{{ $item->id }}">
-                                                <div>Price Min <strong>{{ number_format(fdiv($item->Price_Min,$currency_rate[0]->price)) }}</strong> |
-                                                </div>
-                                                 @if(session("user"))
-                                            @if(session("user")->role=="admin" || session("user")->role=="datamanager" || session("user")->role=="subscriber")
-                                            <div>Price Max | {{ number_format(fdiv($item->Price_Min,$currency_rate[0]->price)) }}</div>
-                                            @endif
-                                            @endif
-                                                </div>
-                                                <div>Availability <strong>{{ $item->Availability }}</strong> </div>
 
-                                                <div>Monthly Price <a href="">Trend</a>
-                                                    <strong>{{ $item->Monthly_Trend }}</strong>
+                                                <div>Price Min |
+                                                    <strong>{{ number_format(fdiv($item->Price_Min, $currency_rate[0]->price)) }}</strong>
+
                                                 </div>
+                                                @if (session('user'))
+                                                    @if (session('user')->role == 'admin' || session('user')->role == 'datamanager' || session('user')->role == 'subscriber')
+                                                        <div>Price Max |
+                                                            {{ number_format(fdiv($item->Price_Max, $currency_rate[0]->price)) }}
+                                                        </div>
+
+                                                        @if ($item->CSI)
+                                                            <div>
+                                                                <a href="/monthly_trend/equipments/{{ $item->CSI }}">Monthly
+                                                                    Price Trend</a>
+                                                                {{-- <strong>{{ $item->Monthly_Trend }}</strong> --}}
+                                                            </div>
+                                                        @endif
+                                                    @endif
+                                                @endif
                                             </div>
 
-                                            <a class="btn btn-primary" data-bs-toggle="collapse"
-                                                data-bs-target="#gte{{ $item->id }}" role="button"
-                                                aria-expanded="false" aria-controls="collapse">
-                                                Read More/Less
-                                            </a>
-                                            <div>
-                                                <hr>
-                                            </div>
+
+                                            {{-- <div>Monthly Price <a href="">Trend</a>
+                                                <strong>{{ $item->Monthly_Trend }}</strong>
+                                            </div> --}}
 
                                         </div>
 
+                                        <a class="btn btn-primary" data-bs-toggle="collapse"
+                                            data-bs-target="#gte{{ $item->id }}" role="button"
+                                            aria-expanded="false" aria-controls="collapse">
+                                            Read More/Less
+                                        </a>
+
+
+
+
                                     </div>
 
-                                    <div class="col-3">
-                                        <img src="https://media.istockphoto.com/id/1448349078/photo/cement-bags-o-sacks-isolated-on-white.jpg?s=612x612&w=0&k=20&c=F5_VosP_qf9xYgyVth-Vs3OsSjaL0gZBMae39zZ3Zmg="
-                                            alt="cement pic" width="100%" />
-                                    </div>
+                                </div>
+
+                                <div class="col-3">
+                                    <?php
+                                    // Check if $item->Photo exists, is not empty, and is not just a "-"
+                                    if (isset($item->Photo) && !empty($item->Photo) && $item->Photo !== '-' && $item->Photo !== 'Photo') {
+                                        // Debugging output
+                                        // echo '<p>Original Photo: ' . htmlspecialchars($item->Photo) . '</p>';
+                                    
+                                        // Determine if $item->Photo is a URL
+                                        if (filter_var($item->Photo, FILTER_VALIDATE_URL)) {
+                                            // $item->Photo is a URL, display the image
+                                            // echo "<img src='" . htmlspecialchars($item->Photo) . "' alt='cement pic' width='100%' />";
+                                        } else {
+                                            // Adjust the file path to remove 'public/' prefix and prepare for public/storage
+                                            $filePath = str_replace('public/', 'storage/', $item->Photo);
+                                            $encodedFilePath = rawurlencode($filePath); // Encode the file path for URL
+                                    
+                                            // echo '<p>Adjusted File Path: ' . htmlspecialchars($filePath) . '</p>';
+                                            // echo '<p>Encoded File Path: ' . htmlspecialchars($encodedFilePath) . '</p>';
+                                    
+                                            // // Display the image with the correct path
+                                            echo "<img src='" . htmlspecialchars('/' . $filePath) . "' alt='cement pic' width='100%' />";
+                                        }
+                                    } else {
+                                        // $item->Photo does not exist, is empty, or is "-", optional: display a placeholder or nothing
+                                    }
+                                    ?>
+                                </div>
+                                <div>
+                                    <hr>
                                 </div>
                             @endforeach
                         @endif
-                        {{-- {{ $materials->links() }} --}}
+                        {{-- {{ $services->links() }} --}}
                     @endisset
+
+
+
+
+
+
+
+                    @isset($gallery)
+                        @if (!$gallery->isEmpty())
+                            <h3 class="mb-3">{{ $moduleNames->gallery }}</h3>
+                            @foreach ($gallery as $item)
+                                <div class="row">
+                                    <div class="col-8">
+                                        <div class="mb-2 mt-2">
+
+                                            <div>{{ $item->Description }}</div>
+                                            <div>CSI Code | {{ $item->CSI }}</div>
+                                            <div>Keywords | {{ $item->Keywords }}</div>
+
+
+
+
+
+
+
+                                        </div>
+
+
+
+
+
+
+
+
+
+
+                                        <div class="col-3">
+                                            <?php
+                                            // Check if $item->Photo exists, is not empty, and is not just a "-"
+                                            if (isset($item->Photo) && !empty($item->Photo) && $item->Photo !== '-' && $item->Photo !== 'Photo') {
+                                                // Debugging output
+                                                // echo '<p>Original Photo: ' . htmlspecialchars($item->Photo) . '</p>';
+                                            
+                                                // Determine if $item->Photo is a URL
+                                                if (filter_var($item->Photo, FILTER_VALIDATE_URL)) {
+                                                    // $item->Photo is a URL, display the image
+                                                    // echo "<img src='" . htmlspecialchars($item->Photo) . "' alt='cement pic' width='100%' />";
+                                                } else {
+                                                    // Adjust the file path to remove 'public/' prefix and prepare for public/storage
+                                                    $filePath = str_replace('public/', 'storage/', $item->Photo);
+                                                    $encodedFilePath = rawurlencode($filePath); // Encode the file path for URL
+                                            
+                                                    // echo '<p>Adjusted File Path: ' . htmlspecialchars($filePath) . '</p>';
+                                                    // echo '<p>Encoded File Path: ' . htmlspecialchars($encodedFilePath) . '</p>';
+                                            
+                                                    // // Display the image with the correct path
+                                                    echo "<img src='" . htmlspecialchars('/' . $filePath) . "' alt='cement pic' width='100%' />";
+                                                }
+                                            } else {
+                                                // $item->Photo does not exist, is empty, or is "-", optional: display a placeholder or nothing
+                                            }
+                                            ?>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                                <div>
+                                    <hr>
+                                </div>
+                            @endforeach
+                        @endif
+                        {{-- {{ $services->links() }} --}}
+                    @endisset
+
+
+
+
+
+
+
+
+
+
+
+                    @isset($documents)
+                        @if (!$documents->isEmpty())
+                            <h3 class="mb-3">{{ $moduleNames->reference }}</h3>
+                            @foreach ($documents as $item)
+                                <div class="row">
+                                    <div class="col-8">
+                                        <div class="mb-2 mt-2">
+
+                                            <div>{{ $item->Description }}</div>
+                                            <div>CSI Code | {{ $item->CSI }}</div>
+                                            <div>Keywords | {{ $item->Keywords }}</div>
+
+                                        </div>
+
+
+
+
+                                    </div>
+
+                                    {{-- <a class="btn btn-primary" data-bs-toggle="collapse"
+                                        data-bs-target="#gte{{ $item->id }}" role="button" aria-expanded="false"
+                                        aria-controls="collapse">
+                                        Read More/Less
+                                    </a> --}}
+
+
+
+
+
+
+                                    <div class="col-3">
+                                        <?php
+                                        // Check if $item->File exists, is not empty, and is not just a "-"
+                                        if (isset($item->File) && !empty($item->File) && $item->File !== '-' && $item->File !== 'File') {
+                                            // Decode the JSON array of file paths
+                                            $filePaths = json_decode($item->File, true);
+                                        
+                                            if (is_array($filePaths)) {
+                                                // Loop through each file path and generate a download link
+                                                foreach ($filePaths as $filePath) {
+                                                    // Determine if $filePath is a URL
+                                                    if (filter_var($filePath, FILTER_VALIDATE_URL)) {
+                                                        // $filePath is a URL, prepare download link
+                                                        echo "<a href='" . htmlspecialchars($filePath) . "' download>";
+                                                        echo "<img src='https://png.pngtree.com/element_our/20190601/ourmid/pngtree-file-download-icon-image_1344466.jpg' alt='Download icon' width='24' height='24' />";
+                                                        echo '</a>';
+                                                    } else {
+                                                        // Adjust the file path to remove 'public/' prefix and prepare for public/storage
+                                                        $adjustedFilePath = str_replace('public/', 'storage/', $filePath);
+                                                        $encodedFilePath = rawurlencode($adjustedFilePath); // Encode the file path for URL
+                                        
+                                                        // Prepare the download link with rawurlencode applied
+                                                        echo "<a href='" . htmlspecialchars('/' . $adjustedFilePath) . "' download>";
+                                                        echo "<img src='https://png.pngtree.com/element_our/20190601/ourmid/pngtree-file-download-icon-image_1344466.jpg' alt='Download icon' width='24' height='24' />";
+                                                        echo '</a>';
+                                                    }
+                                                }
+                                            } else {
+                                                // $item->File is not a valid JSON array, handle as a single file
+                                                if (filter_var($item->File, FILTER_VALIDATE_URL)) {
+                                                    // $item->File is a URL, prepare download link
+                                                    echo "<a href='" . htmlspecialchars($item->File) . "' download>";
+                                                    echo "<img src='https://png.pngtree.com/element_our/20190601/ourmid/pngtree-file-download-icon-image_1344466.jpg' alt='Download icon' width='24' height='24' />";
+                                                    echo '</a>';
+                                                } else {
+                                                    // Adjust the file path to remove 'public/' prefix and prepare for public/storage
+                                                    $filePath = str_replace('public/', 'storage/', $item->File);
+                                                    $encodedFilePath = rawurlencode($filePath); // Encode the file path for URL
+                                        
+                                                    // Prepare the download link with rawurlencode applied
+                                                    echo "<a href='" . htmlspecialchars('/' . $filePath) . "' download>";
+                                                    echo "<img src='https://png.pngtree.com/element_our/20190601/ourmid/pngtree-file-download-icon-image_1344466.jpg' alt='Download icon' width='24' height='24' />";
+                                                    echo '</a>';
+                                                }
+                                            }
+                                        } else {
+                                            // $item->File does not exist, is empty, or is "-", optional: display a placeholder or nothing
+                                        }
+                                        ?>
+                                    </div>
+
+
+
+                                    <div>
+                                        <hr>
+                                    </div>
+                            @endforeach
+                        @endif
+                        {{-- {{ $services->links() }} --}}
+                    @endisset
+
+
+
+
 
                     @if (@isset($materials))
                         @if (@isset($resource))
                             @if (@isset($services))
-                                <div>Total Records found
-                                    {{ sizeof($materials) + sizeof($resource) + sizeof($services) }}</div>
+                                @if (@isset($equipments))
+                                    @if (@isset($gallery))
+                                        @if (@isset($documents))
+                                            <div>Total Records found
+                                                {{ sizeof($materials) + sizeof($resource) + sizeof($services) + sizeof($equipments) + sizeof($gallery) + sizeof($documents) }}
+                                            </div>
+                                        @endif
+                                    @endif
+                                @endif
                             @endif
                         @endif
                     @endif
 
 
-                    @if (@isset($materials) && @empty($resource) && @empty($services))
+                    @if (
+                        @isset($materials) &&
+                            @empty($resource) &&
+                            @empty($services) &&
+                            @empty($equipments) &&
+                            @empty($gallery) &&
+                            @empty($documents))
                         <div>Total Records found {{ sizeof($materials) }}</div>
                     @endif
 
-                    @if (@isset($resource) && @empty($materials) && @empty($services))
+                    @if (
+                        @isset($resource) &&
+                            @empty($materials) &&
+                            @empty($services) &&
+                            @empty($equipments) &&
+                            @empty($gallery) &&
+                            @empty($documents))
                         <div>Total Records found {{ sizeof($resource) }}</div>
                     @endif
 
-                    @if (@isset($services) && @empty($materials) && @empty($resource))
+                    @if (
+                        @isset($services) &&
+                            @empty($materials) &&
+                            @empty($resource) &&
+                            @empty($equipments) &&
+                            @empty($gallery) &&
+                            @empty($documents))
                         <div>Total Records found {{ sizeof($services) }}</div>
+                    @endif
+                    @if (
+                        @isset($equipments) &&
+                            @empty($materials) &&
+                            @empty($resource) &&
+                            @empty($services) &&
+                            @empty($gallery) &&
+                            @empty($documents))
+                        <div>Total Records found {{ sizeof($equipments) }}</div>
+                    @endif
+                    @if (
+                        @isset($gallery) &&
+                            @empty($materials) &&
+                            @empty($resource) &&
+                            @empty($services) &&
+                            @empty($equipments) &&
+                            @empty($documents))
+                        <div>Total Records found {{ sizeof($gallery) }}</div>
+                    @endif
+                    @if (
+                        @isset($documents) &&
+                            @empty($materials) &&
+                            @empty($resource) &&
+                            @empty($services) &&
+                            @empty($gallery) &&
+                            @empty($equipments))
+                        <div>Total Records found {{ sizeof($documents) }}</div>
                     @endif
                 </div>
 
@@ -582,6 +1079,7 @@
         </div>
 
 
+    </div>
     </div>
 
 

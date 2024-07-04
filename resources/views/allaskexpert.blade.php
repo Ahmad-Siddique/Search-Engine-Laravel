@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+   @include('pagetitle')
     @include('bootstraplink')
 
 <style>
@@ -82,6 +82,17 @@ button {
     @include('header')
     <div class="container">
   <div class="">
+     @if(session('success'))
+        <div class="alert alert-success mt-3">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger mt-3">
+            {{ session('error') }}
+        </div>
+    @endif
     <h2 class="mt-4 text-center">All Ask An Expert </h2>
     {{-- <button class="btn btn-success d-flex"><a class="atag" href="/addmaterial"> Add Material</a></button> --}}
 
@@ -93,36 +104,34 @@ button {
     </div>
 
     <table class="table">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>EMAIL</th>
-            <th>QUESTION</th>
-            <th>ANSWER</th>
-           
-            <th>Update</th>
-            <th>Delete</th>
-        </tr>
-        </thead>
-
-
-   
-    @if(@empty($collection))
-        <div>No material records found</div>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>EMAIL</th>
+        <th>QUESTION</th>
+        <th>ANSWER</th>
+        <th>STATUS</th>
+        <th>Update</th>
+        <th>Delete</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if($collection->isEmpty())
+        <tr><td colspan="7">No material records found</td></tr>
     @else
-      @foreach($collection as $data)
-      <tr>
-          <td>{{$data->id}}</td>
-          <td>{{$data->email}}</td>
-          <td>{{$data->question}}</td>
-          <td>{{$data->answer}}</td>
-         
-          <td><button><a style="color:white; text-decoration:none" href={{"updateaskexpert/".$data->id}} >Answer</a></button></td>
-          <td><button class="btn btn-danger"><a style="color:white; text-decoration:none" href={{"/deleteuser/".$data->id}} >Delete</a></button></td>
-      </tr>
-      @endforeach
-
+        @foreach($collection as $data)
+        <tr>
+            <td>{{$data->id}}</td>
+            <td>{{$data->email}}</td>
+            <td>{{substr($data->question, 0, 20)}}{{strlen($data->question) > 20 ? '...' : ''}}</td>
+            <td>{{substr($data->answer, 0, 20)}}{{strlen($data->answer) > 20 ? '...' : ''}}</td>
+            <td>{{strlen($data->answer) > 0 ? 'Responded' : 'Not Responded'}}</td>
+            <td><button class="btn btn-primary"><a style="color:white; text-decoration:none" href={{"updateaskexpert/".$data->id}} >Answer</a></button></td>
+            <td><button class="btn btn-danger"><a style="color:white; text-decoration:none" href={{"/deleteaskexpert/".$data->id}} >Delete</a></button></td>
+        </tr>
+        @endforeach
     @endif
+    </tbody>
 </table>
 {{ $collection->links() }}
   </div>

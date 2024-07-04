@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    @include('pagetitle')
     @include('bootstraplink')
 
 <style>
@@ -82,6 +82,17 @@ button {
     @include('header')
     <div class="container">
   <div class="">
+     @if(session('success'))
+        <div class="alert alert-success mt-3">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger mt-3">
+            {{ session('error') }}
+        </div>
+    @endif
     <h2 class="mt-4 text-center">All Background Picture </h2>
     <button class="btn btn-success d-flex"><a class="atag" href="/addbackgroundpic"> Add Background Picture</a></button>
     <table class="table">
@@ -106,7 +117,7 @@ button {
         <td><img width="100" height="100" src="{{Storage::url($data->Photo)}}" alt="bg" /></td>
       
         <td><button><a style="color:white; text-decoration:none" href={{"updatebackgroundpic/".$data->id}} >Update</a></button></td>
-        <td><button class="btn btn-danger"><a style="color:white; text-decoration:none" href={{"/deleteuser/".$data->id}} >Delete</a></button></td>
+        <td><button class="btn btn-danger"><a style="color:white; text-decoration:none" href={{"/deletebackgroundpic/".$data->id}} >Delete</a></button></td>
     </tr>
     @endforeach
 </table>

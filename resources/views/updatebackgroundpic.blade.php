@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+  @include('pagetitle')
     @include('bootstraplink')
 
 <style>
@@ -85,7 +85,7 @@ button {
        <input  type="hidden" name="added_by" value={{ session('user')->id }} />
       <label for="password" class="form-label">Photo</label>
       <input type="file" class="form-control" id="password" name="Photo" placeholder="Enter your Photo">
-
+<div class="mb-3"><a href="{{ asset(Storage::url($data->Photo)) }}" target="_blank">{{ asset(Storage::url($data->Photo)) }}</a></div>
     
 
       {{-- <label for="password" class="form-label">Created On</label>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+   @include('pagetitle')
     @include('bootstraplink')
 
 <style>
@@ -82,11 +82,23 @@ button {
     @include('header')
     <div class="container">
   <div class="">
+    @if(session('success'))
+        <div class="alert alert-success mt-3">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger mt-3">
+            {{ session('error') }}
+        </div>
+    @endif
     <h2 class="mt-4 text-center">All Material </h2>
 
     <div class="d-flex flex-row-reverse">
     <button class="btn btn-success "><a class="atag" href="/addmaterial"> Add Material</a></button>
     <button class="btn btn-success mx-3"><a class="atag" href="/addmaterialfile"> Import File</a></button>
+    <button class="btn btn-success mx-3"><a class="atag" href="/materials/export/"> Export Material</a></button>
     </div>
 
      <div class="mt-3 mb-3">
@@ -101,7 +113,7 @@ button {
         <tr>
             <th>ID</th>
             <th>CSI</th>
-            <th>QUALIFICATIONS</th>
+            <th>DESCRIPTION</th>
             <th>BRIEF SPECS</th>
             <th>PRICE MIN</th>
             <th>PRICE MAX</th>
@@ -119,7 +131,7 @@ button {
       <tr>
           <td>{{$data->id}}</td>
           <td>{{$data->CSI}}</td>
-          <td>{{$data->Qualification}}</td>
+          <td>{{$data->Description}}</td>
           <td>{{$data->Brief_Specs}}</td>
           <td>{{number_format($data->Price_Min)}}</td>
           <td>{{number_format($data->Price_Max)}}</td>

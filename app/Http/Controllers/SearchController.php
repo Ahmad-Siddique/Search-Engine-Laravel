@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\KeywordExport;
 use App\Models\AskExpert;
 use App\Models\Background_Pic;
 use App\Models\CurrencyConversion;
@@ -17,9 +18,16 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Maatwebsite\Excel\Facades\Excel;
 use Stevebauman\Location\Facades\Location;
-
+use Illuminate\Support\Facades\Storage;
 use App\Imports\MaterialsImport;
+use App\Imports\ResourcesImport;
+use App\Imports\ServicesImport;
 
+use App\Exports\UsersExport;
+use App\Exports\MaterialsExport;
+use App\Exports\ServicesExport;
+use App\Exports\ResourcesExport;
+use App\Models\ModuleName;
 use Illuminate\Support\Facades\Session;
 use Mail;
 
@@ -34,8 +42,10 @@ class SearchController extends Controller
     {
         // $randomnumber = rand(1, 5);
         $backgroundpic = Background_Pic::all()->random(1)->first();
+        $currency = CurrencyConversion::all();
+        // return $currency;
         // echo $backgroundpic;
-        return view("mainpage", ["randompic" => $backgroundpic]);
+        return view("mainpage", ["randompic" => $backgroundpic, "currencyvalues"=>$currency]);
     }
 
 
@@ -72,8 +82,8 @@ class SearchController extends Controller
             $currency = $req->input("currency");
         }
 
-        
-        $currency_rate = DB::table("currency_conversion")->where("currency",$currency)->get();
+        $currencies = CurrencyConversion::pluck('currency')->toArray();
+        $currency_rate = DB::table("currency_conversion")->where("currency", $currency)->get();
         // echo $currency_rate;
 
         $data = trim($data);
@@ -88,39 +98,59 @@ class SearchController extends Controller
         $resource = DB::table("resources_csv");
         $materials = DB::table("materials_csv");
         $services = DB::table("service_csv");
+        $equipments = DB::table("equipments_csv");
+        $gallery = DB::table("gallery");
+        $documents = DB::table("documents_csv");
 
 
         $ip = $req->ip();
         // echo $ip;
-        $currentUserInfo = Location::get($ip);
+        $currentUserInfo = Location::get(request()->getClientIp());
         // echo $currentUserInfo;
+        if ($currentUserInfo) {
 
-        for ($x = 0; $x < count($keys); $x++) {
-            $search_history = new Search_History;
-            $search_history->keyword = $keywords[$keys[$x]];
-            if($currentUserInfo){
 
-            
-            $search_history->countryName = $currentUserInfo->countryName;
-            $search_history->regionName  = $currentUserInfo->regionName ;
-            $search_history->cityName  = $currentUserInfo->cityName ;
-            $search_history->zipCode = $currentUserInfo->zipCode;
-            $search_history->ip = $ip;
+
+            for ($x = 0; $x < count($keys); $x++) {
+                $search_history = new Search_History;
+                $search_history->keyword = $keywords[$keys[$x]];
+                if ($currentUserInfo) {
+
+
+                    $search_history->countryName = $currentUserInfo->countryName;
+                    $search_history->regionName  = $currentUserInfo->regionName;
+                    $search_history->cityName  = $currentUserInfo->cityName;
+                    $search_history->zipCode = $currentUserInfo->zipCode;
+                    $search_history->ip = request()->getClientIp();
+                }
+
+                if (session("user")) {
+                    $search_history->user_id = session("user")->id;
+                }
+                $search_history->save();
+                $resource = $resource->orWhere("Name", "like", $keywords[$keys[$x]] . "%")->orWhere("Name", "like", "% " . $keywords[$keys[$x]] . "%")
+                    ->orWhere("CSI", "like", $keywords[$keys[$x]] . "%")->orWhere("CSI", "like", "% " . $keywords[$keys[$x]] . "%");
+
+                $materials = $materials->orWhere("Description", "like",   $keywords[$keys[$x]] . "%")->orWhere("Description", "like", "% " .   $keywords[$keys[$x]] . "%")
+                    ->orWhere("CSI", "like", $keywords[$keys[$x]] . "%")->orWhere("CSI", "like", "% " . $keywords[$keys[$x]] . "%")
+                    ->orWhere("Brief_Specs", "like", $keywords[$keys[$x]] . "%")->orWhere("Brief_Specs", "like", "% " . $keywords[$keys[$x]] . "%");
+                $services = $services->orWhere("Description", "like",   $keywords[$keys[$x]] . "%")->orWhere("Description", "like",  "% " . $keywords[$keys[$x]] . "%")
+                    ->orWhere("CSI", "like", $keywords[$keys[$x]] . "%")->orWhere("CSI", "like", "% " . $keywords[$keys[$x]] . "%")
+                    ->orWhere("Specifications", "like", $keywords[$keys[$x]] . "%")->orWhere("Specifications", "like", "% " . $keywords[$keys[$x]] . "%");
+
+
+                $equipments = $equipments->orWhere("Description", "like",   $keywords[$keys[$x]] . "%")->orWhere("Description", "like",  "% " . $keywords[$keys[$x]] . "%")
+                    ->orWhere("CSI", "like", $keywords[$keys[$x]] . "%")->orWhere("CSI", "like", "% " . $keywords[$keys[$x]] . "%")
+                    ->orWhere("Specifications", "like", $keywords[$keys[$x]] . "%")->orWhere("Specifications", "like", "% " . $keywords[$keys[$x]] . "%");
+
+                $gallery = $gallery->orWhere("Description", "like",   $keywords[$keys[$x]] . "%")->orWhere("Description", "like",  "% " . $keywords[$keys[$x]] . "%")
+                    ->orWhere("CSI", "like", $keywords[$keys[$x]] . "%")->orWhere("CSI", "like", "% " . $keywords[$keys[$x]] . "%")
+                    ->orWhere("Keywords", "like", $keywords[$keys[$x]] . "%")->orWhere("Keywords", "like", "% " . $keywords[$keys[$x]] . "%");
+
+                $documents = $documents->orWhere("Description", "like",   $keywords[$keys[$x]] . "%")->orWhere("Description", "like",  "% " . $keywords[$keys[$x]] . "%")
+                    ->orWhere("CSI", "like", $keywords[$keys[$x]] . "%")->orWhere("CSI", "like", "% " . $keywords[$keys[$x]] . "%")
+                    ->orWhere("Keywords", "like", $keywords[$keys[$x]] . "%")->orWhere("Keywords", "like", "% " . $keywords[$keys[$x]] . "%");
             }
-            
-            if(session("user")){
-                $search_history->user_id = session("user")->id;
-            }
-            $search_history->save();
-            $resource = $resource->orWhere("Name", "like", $keywords[$keys[$x]] . "%")->orWhere("Name", "like", "% " . $keywords[$keys[$x]] . "%")
-                ->orWhere("CSI", "like", $keywords[$keys[$x]] . "%")->orWhere("CSI", "like", "% " . $keywords[$keys[$x]] . "%");
-
-            $materials = $materials->orWhere("Description", "like",   $keywords[$keys[$x]] . "%")->orWhere("Description", "like", "% " .   $keywords[$keys[$x]] . "%")
-                ->orWhere("CSI", "like", $keywords[$keys[$x]] . "%")->orWhere("CSI", "like", "% " . $keywords[$keys[$x]] . "%")
-                ->orWhere("Brief_Specs", "like", $keywords[$keys[$x]] . "%")->orWhere("Brief_Specs", "like", "% " . $keywords[$keys[$x]] . "%");
-            $services = $services->orWhere("Description", "like",   $keywords[$keys[$x]] . "%")->orWhere("Description", "like",  "% " . $keywords[$keys[$x]] . "%")
-                ->orWhere("CSI", "like", $keywords[$keys[$x]] . "%")->orWhere("CSI", "like", "% " . $keywords[$keys[$x]] . "%")
-                ->orWhere("Specifications", "like", $keywords[$keys[$x]] . "%")->orWhere("Specifications", "like", "% " . $keywords[$keys[$x]] . "%");
         }
 
 
@@ -179,20 +209,23 @@ class SearchController extends Controller
         $resource = $resource->get();
         $materials = $materials->get();
         $services = $services->get();
-
+        $equipments = $equipments->get();
+        $gallery = $gallery->get();
+        $documents = $documents->get();
+        $currencies = CurrencyConversion::pluck('currency')->toArray();
         // $resource = $resource->get();
         // $materials = $materials->get();
         // $services = $services->get();
-
+        // return $currency_rate;
 
         // return $resource;
-        return view("contentshow", ["data" => $data, "resource" => $resource, "services" => $services, "materials" => $materials, "category" => $category, "sorting" => $sorting, "country"=>$country, "currency"=>$currency,"currency_rate"=> $currency_rate]);
+        return view("contentshow", ["data" => $data, "resource" => $resource, "services" => $services, "equipments" => $equipments, "materials" => $materials, "gallery" => $gallery, "documents" => $documents, "category" => $category, "sorting" => $sorting, "country" => $country, "currency" => $currency, "currency_rate" => $currency_rate,"currencies"=>$currencies]);
 
 
         // return view("contentshow", ["data" => $data, "resource" => $resource, "category" => $category, "sorting" => $sorting]);
     }
 
-    function FetchResources($search, $category, $sorting,$currency)
+    function FetchResources($search, $category, $sorting, $currency)
     {
         // $response = Http::post("http://127.0.0.1:7000/searchingdata", [
         //     "search" => $search
@@ -230,14 +263,14 @@ class SearchController extends Controller
         }
 
 
-
+        $currencies = CurrencyConversion::pluck('currency')->toArray();
         $resource = $resource->paginate(3);
 
         // return $resource;
-        return view("contentshow", ["data" => $search, "resource" => $resource, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate]);
+        return view("contentshow", ["data" => $search, "resource" => $resource, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate, "currencies" => $currencies]);
     }
 
-    function FetchServices($search, $category, $sorting,$currency)
+    function FetchServices($search, $category, $sorting, $currency)
     {
 
 
@@ -261,7 +294,7 @@ class SearchController extends Controller
         $services = DB::table("service_csv");
 
         for ($x = 0; $x < count($keys); $x++) {
-            
+
             $services = $services->orWhere("Description", "like",   $keywords[$keys[$x]] . "%")->orWhere("Description", "like",  "% " . $keywords[$keys[$x]] . "%")
                 ->orWhere("CSI", "like", $keywords[$keys[$x]] . "%")->orWhere("CSI", "like", "% " . $keywords[$keys[$x]] . "%")
                 ->orWhere("Specifications", "like", $keywords[$keys[$x]] . "%")->orWhere("Specifications", "like", "% " . $keywords[$keys[$x]] . "%");
@@ -292,11 +325,12 @@ class SearchController extends Controller
 
 
         $services = $services->paginate(3);
+        $currencies = CurrencyConversion::pluck('currency')->toArray();
         // return $resource;
-        return view("contentshow", ["data" => $search, "services" => $services, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate]);
+        return view("contentshow", ["data" => $search, "services" => $services, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate,"currencies"=>$currencies]);
     }
 
-    function FetchMaterials($search, $category, $sorting,$currency)
+    function FetchMaterials($search, $category, $sorting, $currency)
     {
 
         if ($currency) {
@@ -354,14 +388,15 @@ class SearchController extends Controller
             }
         }
 
-
+        $currencies = CurrencyConversion::pluck('currency')->toArray();
         $materials = $materials->paginate(3);
 
         // return $resource;
-        return view("contentshow", ["data" => $search, "materials" => $materials, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate]);
+        return view("contentshow", ["data" => $search, "materials" => $materials, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate, "currencies" => $currencies]);
     }
 
-    function FetchImages($search, $category, $sorting){
+    function FetchImages($search, $category, $sorting)
+    {
         $imagedata = [
             "https://plus.unsplash.com/premium_photo-1682721999780-28ee72fd8970?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80",
             "https://images.unsplash.com/photo-1560435650-7ec2e17ba926?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
@@ -391,6 +426,10 @@ class SearchController extends Controller
             return redirect("/login");
         } else {
             // return $user;
+            $moduleNames = ModuleName::firstOrCreate(['user_id' => $user->id]);
+
+            // Put module names in the session
+            $req->session()->put('module_names', $moduleNames);
             $req->session()->put("user", $user);
             return redirect("/");
         }
@@ -431,485 +470,791 @@ class SearchController extends Controller
 
     function addmaterial(Request $req)
     {
+        try {
 
-        $material = new Material;
-        $material->CSI = $req->csi;
-        $material->Description = $req->description;
-        $material->Qualification = $req->qualifications;
-        $material->Brief_Specs = $req->brief_specs;
-        $material->Function = $req->function;
-        $material->Origin = $req->origin;
-        $material->Currency = $req->currency;
-        $material->Price_Min = $req->price_min;
-        $material->Price_Max = $req->price_max;
-        $material->Unit = $req->unit;
-        $material->Discount = $req->discount;
-        $material->Monthly_Trend = $req->monthly_trend;
+            $material = new Material;
+            $material->CSI = $req->csi;
+            $material->Description = $req->description;
+            // $material->Qualification = $req->qualifications;
+            $material->Brief_Specs = $req->brief_specs;
+            $material->Function = $req->function;
+            $material->Origin = $req->origin;
+            $material->Currency = $req->currency;
+            $material->Price_Min = $req->price_min;
+            $material->Price_Max = $req->price_max;
+            $material->Unit = $req->unit;
+            $material->Discount = $req->discount;
+            $material->Monthly_Trend = $req->monthly_trend;
 
-        $material->Availability = $req->availability;
-        $material->Alternate = $req->alternate;
-        $material->Alternate_CSI = $req->alternate_csi;
-        $material->Notes = $req->notes;
-        // $material->Created_On = $req->created_on;
-        // $material->Update_On = $req->update_on;
-        $material->Keywords = $req->keywords;
+            $material->Availability = $req->availability;
+            $material->Alternate = $req->alternate;
+            $material->Alternate_CSI = $req->alternate_csi;
+            $material->Notes = $req->notes;
+            // $material->Created_On = $req->created_on;
+            // $material->Update_On = $req->update_on;
+            $material->Keywords = $req->keywords;
 
-        if ($req->file("Photo")) {
-            $material->Photo = $req->file("Photo")->store('img');
+            if ($req->file("Photo")) {
+                $material->Photo = $req->file("Photo")->store('public');
+            }
+
+            $material->save();
+
+            return redirect("/allmaterial")->with('success', 'Material added successfully!');
+        } catch (\Exception $e) {
+            // Handle the error, log it if necessary, and redirect with an error message
+            // \Log::error("Error adding material: " . $e->getMessage());
+
+            // Redirect to the same page or an error page with an error message
+            return redirect("/allmaterial")->with('error', 'Failed to add material. Please try again.');
         }
-
-        $material->save();
-
-        return redirect("/addmaterial");
     }
 
 
     function addmaterialfile(Request $req)
     {
+        DB::beginTransaction();  // Start a transaction
+        try {
+            // Check the type of operation requested
+            if ($req->type === 'new') {
+                // Clear the existing data safely within a transaction
+                Material::query()->delete();  // Using delete() to ensure model events are fired
+            }
 
-        Excel::import(new MaterialsImport,$req->file('file'));
+            // Import new data from Excel file
+            Excel::import(new MaterialsImport, $req->file('file'));
 
-        // $material->save();
+            DB::commit();  // Commit the transaction if everything's good
+            return redirect("/allmaterial")->with('success', 'File Imported Successfully!');
+        } catch (Exception $e) {
+            DB::rollBack();  // Rollback the transaction on error
+            // Optional: Log the error message
+            // \Log::error("Error adding material: " . $e->getMessage());
 
-        return redirect("/addmaterialfile");
-    }
-
-
-
-
-
-    function addresource(Request $req)
-    {
-        $resource = new Resource;
-
-        $resource->CSI = $req->csi;
-        $resource->Name = $req->Name;
-        $resource->Qualification = $req->Qualification;
-        $resource->Experience = $req->Experience;
-        $resource->Awards = $req->Awards;
-        
-        $resource->Currency = $req->Currency;
-        if ($req->file("Photo")) {
-            $resource->Photo = $req->file("Photo")->store('img');
+            return redirect("/allmaterial")->with('error', 'Failed to import file: ' . $e->getMessage());
         }
-
-        $resource->Notes = $req->Notes;
-        $resource->Engagement = $req->Engagement_Type;
-        $resource->Availability = $req->Availability;
-        $resource->Location = $req->Location;
-        
-        $resource->Nationality = $req->Nationality;
-        $resource->Age_Years = $req->Age_Years;
-        $resource->Price_Min = $req->Price_Min;
-        $resource->Price_Max = $req->Price_Max;
-        $resource->Notes = $req->Notes;
-        // $resource->Created_On = $req->Created_On;
-        // $resource->Update_On = $req->Update_On;
-
-
-        $resource->save();
-        return redirect("/addresource");
     }
 
 
-    function addservice(Request $req)
+    function addresourcefile(Request $req)
     {
-        $service = new Service;
+        DB::beginTransaction();  // Start a transaction
+        try {
+            // Check the type of operation requested
+            if ($req->type === 'new') {
+                // Clear the existing data safely within a transaction
+                Resource::query()->delete();  // Using delete() to ensure model events are fired
+            }
 
-        $service->CSI = $req->CSI;
-        $service->Description = $req->Description;
-        $service->Specifications = $req->Specifications;
-        $service->Unit = $req->Unit;
-        $service->Price_Min = $req->Price_Min;
-        $service->Price_Max = $req->Price_Max;
-        $service->Currency = $req->Currency;
+            // Import new data from Excel file
+            Excel::import(new ResourcesImport, $req->file('file'));
 
+            DB::commit();  // Commit the transaction if everything's good
+            return redirect("/allresource")->with('success', 'File Imported Successfully!');
+        } catch (Exception $e) {
+            DB::rollBack();  // Rollback the transaction on error
+            // Optional: Log the error message
+            // \Log::error("Error adding material: " . $e->getMessage());
 
-        $service->Discount = $req->Discount;
-        $service->Monthly_Trend = $req->Monthly_Trend;
-        $service->Location = $req->Location;
-        $service->Notes = $req->Notes;
-
-
-        // $service->Created_On = $req->Created_On;
-        // $service->Update_On = $req->Update_On;
-        $service->Keywords = $req->Keywords;
-
-        if ($req->file("Photo")) {
-            $service->Photo = $req->file("Photo")->store('img');
+            return redirect("/allresource")->with('error', 'Failed to import file: ' . $e->getMessage());
         }
-
-
-        $service->save(); 
-        return redirect("/addservice");
     }
 
 
-
-    function expertquery(Request $req){
-        echo "This is the requested url";
-        $askexpert = new AskExpert;
-        $askexpert->email = $req->email;
-        $askexpert->question = $req->question;
-        $askexpert->save();
-
-        return back();
-    }
-
-
-
-    function allmaterial(){
-        $data = DB::table("materials_csv")->paginate(10);
-
-        return view("allmaterial",["collection"=>$data]);
-    }
-
-    function allservice()
+    function addservicefile(Request $req)
     {
-        $data = DB::table("service_csv")->paginate(10);
+        DB::beginTransaction();  // Start a transaction
+        try {
+            // Check the type of operation requested
+            if ($req->type === 'new') {
+                // Clear the existing data safely within a transaction
+                Service::query()->delete();  // Using delete() to ensure model events are fired
+            }
 
-        return view("allservice", ["collection" => $data]);
-    }
+            // Import new data from Excel file
+            Excel::import(new ServicesImport, $req->file('file'));
 
+            DB::commit();  // Commit the transaction if everything's good
+            return redirect("/allservice")->with('success', 'File Imported Successfully!');
+        } catch (Exception $e) {
+            DB::rollBack();  // Rollback the transaction on error
+            // Optional: Log the error message
+            // \Log::error("Error adding material: " . $e->getMessage());
 
-    function allresource()
-    {
-        $data = DB::table("resources_csv")->paginate(10);
-
-        return view("allresource", ["collection" => $data]);
-    }
-
-    function updatematerial($id){
-        $material = Material::find($id);
-        
-        return view("updatematerial",["data"=>$material]);
-    }
-
-    function updateservice($id)
-    {
-        $material = Service::find($id);
-        return view("updateservice", ["data" =>$material]);
-    }
-
-
-    function updateresource($id)
-    {
-        $material = Resource::find($id);
-        return view("updateresource", ["data" => $material]);
-    }
-
-
-    function searchmaterial(Request $req){
-        $search = $req->search;
-        // echo $search;
-        $data = DB::table("materials_csv")->orWhere("Description", "like",   $search . "%")->orWhere("Description", "like", "% " .   $search . "%")
-            ->orWhere("CSI", "like", $search . "%")->orWhere("CSI", "like", "% " . $search . "%")
-            ->orWhere("Brief_Specs", "like", $search . "%")->orWhere("Brief_Specs", "like", "% " . $search . "%")
-            ->orWhere("Qualification", "like", $search . "%")->orWhere("Qualification", "like", "% " . $search . "%")
-            ->get();
-
-        // echo $data;
-        return view("allmaterial", ["collection" => $data]);
-        // $material  = Material::
-    }
-
-    function searchresource(Request $req)
-    {
-        $search = $req->search;
-        // echo $search;
-        $data = DB::table("resources_csv")->orWhere("Name", "like", $search . "%")->orWhere("Name", "like", "% " . $search . "%")
-        ->orWhere("CSI", "like", $search . "%")->orWhere("CSI", "like", "% " . $search . "%")->get();
-
-        // echo $data;
-        return view("allresource", ["collection" => $data]);
-        // $material  = Material::
-    }
-
-    function searchservice(Request $req)
-    {
-        $search = $req->search;
-        // echo $search;
-        $data = DB::table("service_csv")->orWhere("Description", "like",   $search . "%")->orWhere("Description", "like",  "% " . $search . "%")
-            ->orWhere("CSI", "like", $search . "%")->orWhere("CSI", "like", "% " . $search . "%")
-            ->orWhere("Specifications", "like", $search . "%")->orWhere("Specifications", "like", "% " . $search . "%")
-            ->get();
-
-        // echo $data;
-        return view("allservice", ["collection" => $data]);
-        // $material  = Material::
-    }
-
-
-    function postupdatematerial(Request $req){
-        $material = Material::find($req->id);
-        $material->CSI = $req->csi;
-        $material->Description = $req->description;
-        $material->Qualification = $req->qualifications;
-        $material->Brief_Specs = $req->brief_specs;
-        $material->Function = $req->function;
-        $material->Origin = $req->origin;
-        $material->Currency = $req->currency;
-        $material->Price_Min = $req->price_min;
-        $material->Price_Max = $req->price_max;
-        $material->Unit = $req->unit;
-        $material->Discount = $req->discount;
-        $material->Monthly_Trend = $req->monthly_trend;
-
-        $material->Availability = $req->availability;
-        $material->Alternate = $req->alternate;
-        $material->Alternate_CSI = $req->alternate_csi;
-        $material->Notes = $req->notes;
-        // $material->Created_On = $req->created_on;
-        // $material->Update_On = $req->update_on;
-        $material->Keywords = $req->keywords;
-
-        if ($req->file("Photo")) {
-            $material->Photo = $req->file("Photo")->store('img');
+            return redirect("/allservice")->with('error', 'Failed to import file: ' . $e->getMessage());
         }
-
-        $material->save();
-
-        return redirect("/updatematerial/".$req->id);
-
     }
 
 
 
 
-    function postupdateservice(Request $req)
-    {
-        $service = Service::find($req->id);
-        $service->CSI = $req->CSI;
-        $service->Description = $req->Description;
-        $service->Specifications = $req->Specifications;
-        $service->Unit = $req->Unit;
-        $service->Price_Min = $req->Price_Min;
-        $service->Price_Max = $req->Price_Max;
-        $service->Currency = $req->Currency;
+        function addresource(Request $req)
+        {
+            try {
+                $resource = new Resource;
+
+                $resource->CSI = $req->csi;
+                $resource->Name = $req->Name;
+                $resource->Qualification = $req->Qualification;
+                $resource->Experience = $req->Experience;
+                $resource->Awards = $req->Awards;
+
+                $resource->Currency = $req->Currency;
+                if ($req->file("Photo")) {
+                    $resource->Photo = $req->file("Photo")->store('public');
+                }
+
+                $resource->Notes = $req->Notes;
+                $resource->Engagement = $req->Engagement_Type;
+                $resource->Availability = $req->Availability;
+                $resource->Location = $req->Location;
+
+                $resource->Nationality = $req->Nationality;
+                $resource->Age_Years = $req->Age_Years;
+                $resource->Price_Min = $req->Price_Min;
+                $resource->Price_Max = $req->Price_Max;
+                $resource->Notes = $req->Notes;
+                // $resource->Created_On = $req->Created_On;
+                // $resource->Update_On = $req->Update_On;
 
 
-        $service->Discount = $req->Discount;
-        $service->Monthly_Trend = $req->Monthly_Trend;
-        $service->Location = $req->Location;
-        $service->Notes = $req->Notes;
+                $resource->save();
+                return redirect("/allresource")->with('success', 'Resource Added Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding resource: " . $e->getMessage());
 
-
-        // $service->Created_On = $req->Created_On;
-        // $service->Update_On = $req->Update_On;
-        $service->Keywords = $req->Keywords;
-
-        if ($req->file("Photo")) {
-            $service->Photo = $req->file("Photo")->store('img');
+                // Redirect to the same page or an error page with an error message
+                return redirect("/allresource")->with('error', 'Failed to add Resource');
+            }
         }
 
 
-        $service->save();
-       
+        function addservice(Request $req)
+        {
+            try {
+                $service = new Service;
 
-        return redirect("/updateservice/" . $req->id);
-    }
+                $service->CSI = $req->CSI;
+                $service->Description = $req->Description;
+                $service->Specifications = $req->Specifications;
+                $service->Unit = $req->Unit;
+                $service->Price_Min = $req->Price_Min;
+                $service->Price_Max = $req->Price_Max;
+                $service->Currency = $req->Currency;
 
 
+                $service->Discount = $req->Discount;
+                $service->Monthly_Trend = $req->Monthly_Trend;
+                $service->Location = $req->Location;
+                $service->Notes = $req->Notes;
 
 
-    function postupdateresource(Request $req)
-    {
-        $resource = Resource::find($req->id);
-        $resource->CSI = $req->CSI;
-        $resource->Name = $req->Name;
-        $resource->Qualification = $req->Qualification;
-        $resource->Experience = $req->Experience;
-        $resource->Awards = $req->Awards;
-        
-        $resource->Currency = $req->Currency;
-        if ($req->file("Photo")) {
-            $resource->Photo = $req->file("Photo")->store('img');
+                // $service->Created_On = $req->Created_On;
+                // $service->Update_On = $req->Update_On;
+                $service->Keywords = $req->Keywords;
+
+                if ($req->file("Photo")) {
+                    $service->Photo = $req->file("Photo")->store('public');
+                }
+
+
+                $service->save();
+                return redirect("/allservice")->with('success', 'Service Added Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding material: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/allservice")->with('error', 'Failed to Add Service');
+            }
         }
 
-        $resource->Notes = $req->Notes;
-        $resource->Engagement = $req->Engagement_Type;
-        $resource->Availability = $req->Availability;
-        $resource->Location = $req->Location;
-
-        $resource->Nationality = $req->Nationality;
-        $resource->Age_Years = $req->Age_Years;
-        $resource->Price_Min = $req->Price_Min;
-        $resource->Price_Max = $req->Price_Max;
-        $resource->Notes = $req->Notes;
-        // $resource->Created_On = $req->Created_On;
-        // $resource->Update_On = $req->Update_On;
 
 
-        $resource->save();
-        
+        function expertquery(Request $req)
+        {
+            echo "This is the requested url";
+            $askexpert = new AskExpert;
+            $askexpert->email = $req->email;
+            $askexpert->question = $req->question;
+            $askexpert->save();
 
-
-        return redirect("/updateresource/" . $req->id);
-    }
-
-
-    function getquote(Request $req){
-
-
-        
-        $quote = new Get_Qoute;
-        $quote->email = $req->email;
-        $quote->table_id = $req->table_id;
-        $quote->table_name = $req->table_name;
-        $quote->Name = $req->Name;
-        $quote->Organization = $req->Organization;
-        $quote->Phone_Number = $req->Phone_Number;
-        $quote->Item_Description = $req->Item_Description;
-        $quote->Quantity = $req->Quantity;
-
-
-        $quote->Notes = $req->Notes;
-        
-       
-
-        $quote->save();
-        $email = array("name" => $quote->Name);
-        $user["to"] = $quote->email;
-        Mail::send('quotemail', $email,function($messages) use ($user){
-            $messages->to($user["to"]);
-            $messages->subject("Quotation Response");
-
-        });
-
-
-        return back();
-    }
+            return back();
+        }
 
 
 
+        function allmaterial()
+        {
+            $data = DB::table("materials_csv")->orderBy('created_at', 'desc')->paginate(10);
+
+            return view("allmaterial", ["collection" => $data]);
+        }
+
+        function allservice()
+        {
+            $data = DB::table("service_csv")->orderBy('created_at', 'desc')->paginate(10);
+
+            return view("allservice", ["collection" => $data]);
+        }
 
 
-    function allusers()
-    {
-        $data = DB::table("users")->paginate(10);
+        function allresource()
+        {
+            $data = DB::table("resources_csv")->orderBy('created_at', 'desc')->paginate(10);
 
-        return view("allusers", ["collection" => $data]);
-    }
+            return view("allresource", ["collection" => $data]);
+        }
+
+        function updatematerial($id)
+        {
+            $material = Material::find($id);
+            // return $material;
+            return view("updatematerial", ["data" => $material]);
+        }
+
+        function updateservice($id)
+        {
+            $material = Service::find($id);
+            return view("updateservice", ["data" => $material]);
+        }
 
 
-    function adduser(Request $req){
-        
+        function updateresource($id)
+        {
+            $material = Resource::find($id);
+            return view("updateresource", ["data" => $material]);
+        }
 
-        $user = new User;
-        $user->name = $req->name;
-        $user->email = $req->email;
-        $user->password = $req->password;
-        $user->role = $req->role;
-        $user->save();
-        return view("adduserform");
-    }
 
-    function updateuser($id)
-    {
-        $material = User::find($id);
-        return view("updateuser", ["data" => $material]);
-    }
+        function searchmaterial(Request $req)
+        {
+            $search = $req->search;
+            // echo $search;
+            $data = DB::table("materials_csv")->orWhere("Description", "like",   $search . "%")->orWhere("Description", "like", "% " .   $search . "%")
+                ->orWhere("CSI", "like", $search . "%")->orWhere("CSI", "like", "% " . $search . "%")
+                ->orWhere("Brief_Specs", "like", $search . "%")->orWhere("Brief_Specs", "like", "% " . $search . "%")
+                // ->orWhere("Qualification", "like", $search . "%")->orWhere("Qualification", "like", "% " . $search . "%")
+                ->orderBy('created_at', 'desc')->get();
 
-    function postupdateuser(Request $req){
-        
-            $user = User::find($req->id);
-            $user->email = $req->email;
-            $user->name = $req->name;
-        $user->role = $req->role;
+            // echo $data;
+            return view("allmaterial", ["collection" => $data]);
+            // $material  = Material::
+        }
+
+        function searchresource(Request $req)
+        {
+            $search = $req->search;
+            // echo $search;
+            $data = DB::table("resources_csv")->orWhere("Name", "like", $search . "%")->orWhere("Name", "like", "% " . $search . "%")
+                ->orWhere("CSI", "like", $search . "%")->orWhere("CSI", "like", "% " . $search . "%")->orderBy('created_at', 'desc')->get();
+
+            // echo $data;
+            return view("allresource", ["collection" => $data]);
+            // $material  = Material::
+        }
+
+        function searchservice(Request $req)
+        {
+            $search = $req->search;
+            // echo $search;
+            $data = DB::table("service_csv")->orWhere("Description", "like",   $search . "%")->orWhere("Description", "like",  "% " . $search . "%")
+                ->orWhere("CSI", "like", $search . "%")->orWhere("CSI", "like", "% " . $search . "%")
+                ->orWhere("Specifications", "like", $search . "%")->orWhere("Specifications", "like", "% " . $search . "%")
+                ->orderBy('created_at', 'desc')->paginate(10);
+
+            // echo $data;
+            return view("allservice", ["collection" => $data]);
+            // $material  = Material::
+        }
+
+
+        function postupdatematerial(Request $req)
+        {
+            try {
+                $material = Material::find($req->id);
+                $material->CSI = $req->csi;
+                $material->Description = $req->description;
+                // $material->Qualification = $req->qualifications;
+                $material->Brief_Specs = $req->brief_specs;
+                $material->Function = $req->function;
+                $material->Origin = $req->origin;
+                $material->Currency = $req->currency;
+                $material->Price_Min = $req->price_min;
+                $material->Price_Max = $req->price_max;
+                $material->Unit = $req->unit;
+                $material->Discount = $req->discount;
+                $material->Monthly_Trend = $req->monthly_trend;
+
+                $material->Availability = $req->availability;
+                $material->Alternate = $req->alternate;
+                $material->Alternate_CSI = $req->alternate_csi;
+                $material->Notes = $req->notes;
+                // $material->Created_On = $req->created_on;
+                // $material->Update_On = $req->update_on;
+                $material->Keywords = $req->keywords;
+
+            if ($req->file("Photo")) {
+                $material->Photo = $req->file("Photo")->store('public');
+            }
+
+            // return $req;
+
+                $material->save();
+
+                return redirect("/allmaterial")->with('success', 'Material Updated Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding material: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/allmaterial")->with('error', 'Failed to Update Material');
+            }
+        }
+
+
+
+
+        function postupdateservice(Request $req)
+        {
+            try {
+                $service = Service::find($req->id);
+                $service->CSI = $req->CSI;
+                $service->Description = $req->Description;
+                $service->Specifications = $req->Specifications;
+                $service->Unit = $req->Unit;
+                $service->Price_Min = $req->Price_Min;
+                $service->Price_Max = $req->Price_Max;
+                $service->Currency = $req->Currency;
+
+
+                $service->Discount = $req->Discount;
+                $service->Monthly_Trend = $req->Monthly_Trend;
+                $service->Location = $req->Location;
+                $service->Notes = $req->Notes;
+
+
+                // $service->Created_On = $req->Created_On;
+                // $service->Update_On = $req->Update_On;
+                $service->Keywords = $req->Keywords;
+
+                if ($req->file("Photo")) {
+                    $service->Photo = $req->file("Photo")->store('public');
+                }
+
+
+                $service->save();
+
+
+                return redirect("/allservice")->with('success', 'Service Updated Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding service: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/allservice")->with('error', 'Failed to Update Service');
+            }
+        }
+
+
+
+
+        function postupdateresource(Request $req)
+        {
+            try {
+                $resource = Resource::find($req->id);
+                $resource->CSI = $req->CSI;
+                $resource->Name = $req->Name;
+                $resource->Qualification = $req->Qualification;
+                $resource->Experience = $req->Experience;
+                $resource->Awards = $req->Awards;
+
+                $resource->Currency = $req->Currency;
+                if ($req->file("Photo")) {
+                    $resource->Photo = $req->file("Photo")->store('public');
+                }
+
+                $resource->Notes = $req->Notes;
+                $resource->Engagement = $req->Engagement_Type;
+                $resource->Availability = $req->Availability;
+                $resource->Location = $req->Location;
+
+                $resource->Nationality = $req->Nationality;
+                $resource->Age_Years = $req->Age_Years;
+                $resource->Price_Min = $req->Price_Min;
+                $resource->Price_Max = $req->Price_Max;
+                $resource->Notes = $req->Notes;
+                // $resource->Created_On = $req->Created_On;
+                // $resource->Update_On = $req->Update_On;
+
+
+                $resource->save();
+
+
+
+                return redirect("/allresource")->with('success', 'Resource Updated Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding resource: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/allresource")->with('error', 'Failed to Update Resource');
+            }
+        }
+
+
+        function getquote(Request $req)
+        {
+
+
+
+            $quote = new Get_Qoute;
+            $quote->email = $req->email;
+            $quote->table_id = $req->table_id;
+            $quote->table_name = $req->table_name;
+            $quote->Name = $req->Name;
+            $quote->Organization = $req->Organization;
+            $quote->Phone_Number = $req->Phone_Number;
+            $quote->Item_Description = $req->Item_Description;
+            $quote->Quantity = $req->Quantity;
+
+
+            $quote->Notes = $req->Notes;
+
+
+
+            $quote->save();
+            $email = array("name" => $quote->Name);
+            $user["to"] = $quote->email;
+            Mail::send('quotemail', $email, function ($messages) use ($user) {
+                $messages->to($user["to"]);
+                $messages->subject("Quotation Response");
+            });
+
+
+            return back();
+        }
+
+
+
+
+
+        function allusers()
+        {
+            $data = DB::table("users")->orderBy('created_at', 'desc')->paginate(10);
+
+            return view("allusers", ["collection" => $data]);
+        }
+
+
+        function adduser(Request $req)
+        {
+
+            try {
+                $user = new User;
+                $user->name = $req->name;
+                $user->email = $req->email;
+                $user->password = $req->password;
+                $user->role = $req->role;
+                $user->save();
+                return redirect("/alluser")->with('success', 'User Added Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding users: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/alluser")->with('error', 'Failed to Add User');
+            }
+        }
+
+        function updateuser($id)
+        {
+            $material = User::find($id);
+            return view("updateuser", ["data" => $material]);
+        }
+
+        function postupdateuser(Request $req)
+        {
+            try {
+                $user = User::find($req->id);
+                $user->email = $req->email;
+                $user->name = $req->name;
+                $user->role = $req->role;
+
+
+
+                $user->save();
+
+
+
+                return redirect("/alluser")->with('success', 'User Updated Successfully');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding users: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/alluser")->with('error', 'Failed to Update User');
+            }
+        }
+
+
+        function postupdateuserinfo(Request $req)
+        {
+            try {
+
+                $user = User::find($req->id);
+                $user->email = $req->email;
+                $user->name = $req->name;
+                $sessionuser = session("user");
+                $sessionuser["name"] = $req->name;
+                $sessionuser["email"] = $req->email;
+
+                session("user", $sessionuser);
+
+
+                echo $req->name;
+
+
+                $user->save();
+
+
+
+                return redirect("/alluser")->with('success', 'User Info Updated Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding users: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/alluser")->with('error', 'Failed to Update User Info');
+            }
+        }
+
+
+        function searchuser(Request $req)
+        {
+            $search = $req->search;
+            // echo $search;
+            $data = DB::table("users")->orWhere("email", "like",   $search . "%")->orWhere("email", "like",  "% " . $search . "%")
+                ->orWhere("name", "like", $search . "%")->orWhere("name", "like", "% " . $search . "%")
+
+                ->get();
+
+            // echo $data;
+            return view("allusers", ["collection" => $data]);
+            // $material  = Material::
+        }
+
+
+        function allbackgroundpics()
+        {
+            $data = DB::table("backgroundpic")->orderBy('created_at', 'desc')->paginate(10);
+
+            return view("allbackgroundpic", ["collection" => $data]);
+        }
+
+
+        function addbackgroundpic(Request $req)
+        {
+            try{
+
+            $req->validate([
+                'Photo' => 'required|file|image|max:10240', // Max 10MB and must be an image
+            ]);
+            $BackgroundPic = new Background_Pic;
+            $BackgroundPic->added_by = $req->added_by;
+
+            // Check if the request has a file for the 'Photo' input and if the file is valid
+            if ($req->hasFile('Photo') && $req->file('Photo')->isValid()) {
+                // Attempt to store the file in the 'public' disk and save the path
+                try {
+                    $BackgroundPic->Photo = $req->file('Photo')->store('public');
+                } catch (\Exception $e) {
+                    // Log the error message
+                    \Log::error('File upload error: ' . $e->getMessage());
+                    // Optionally, return an error message to the view
+                    return redirect("/allbackgroundpic")->with('error', 'Failed to Add Background Picture');
+                }
+            } else {
+                // Log a message indicating that the file was not uploaded or not valid
+                if (!$req->hasFile('Photo')) {
+                    \Log::warning('No file was uploaded.');
+                } else {
+                    \Log::warning('The uploaded file is not valid.');
+                }
+                // Optionally, return an error message to the view
+                return redirect("/allbackgroundpic")->with('error', 'Please Upload A File');
+            }
+
+            $BackgroundPic->save();
+            // If everything went well, return the view with a success message
+
+           return redirect("/allbackgroundpic")->with('success', 'Background Picture Added Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding backgrounpic: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/allbackgroundpic")->with('error', 'Failed to Add Background Picture');
+            }
+        }
+
+        function updatebackgroundpic($id)
+        {
+            $material = Background_Pic::find($id);
+            return view("updatebackgroundpic", ["data" => $material]);
+        }
+
+        function postupdatebackgroundpic(Request $req)
+        {
+            try {
+                $BackgroundPic = Background_Pic::find($req->id);
+                if ($req->file("Photo")) {
+                    $BackgroundPic->Photo = $req->file("Photo")->store('public');
+                }
+
+
+
+                $BackgroundPic->save();
+
+
+
+                return redirect("/allbackgroundpic")->with('success', 'Background Picture Updated Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding backgrounpic: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/allbackgroundpic")->with('error', 'Failed to Update Background Picture');
+            }
+        }
+
+        function deletebackgroundpic($id)
+        {
+            try {
+                $data = Background_Pic::find($id);
+
+                if ($data) {
+                    // Check if the file exists and delete it
+                    $filePath = $data->Photo; // Ensure 'image_path' is the correct column name holding the file path
+                    $filePath = str_replace('public/', '', $filePath);
+                    if (Storage::disk('public')->exists($filePath)) {
+                        Storage::disk('public')->delete($filePath);
+                    }
+
+                    // Delete the database record
+                    $data->delete();
+                }
+
+                return redirect("/allbackgroundpic")->with('success', 'Background Pic Deleted Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding backgroundpic: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/allbackgroundpic")->with('error', 'Failed to Delete Background Pic');
+            }
+        }
+
+
+
+
+
+
+
+
+        function allaskexpert()
+        {
+            $data = DB::table("askexpert")->orderBy('created_at', 'desc')->paginate(10);
+
+            return view("allaskexpert", ["collection" => $data]);
+        }
+
+
+        // function addaskexpert(Request $req)
+        // {
+
+
+        //     $user = new User;
+        //     $user->name = $req->name;
+        //     $user->email = $req->email;
+        //     $user->password = $req->password;
+        //     $user->save();
+        //     return view("adduserform");
+        // }
+
+        function updateaskexpert($id)
+        {
+            $material = AskExpert::find($id);
+            return view("updateaskexpert", ["data" => $material]);
+        }
+
+        function postupdateaskexpert(Request $req)
+        {
+
+        try {
             
+            $user = AskExpert::find($req->id);
+            if ($user) {
+                // Check if the file exists and delete it
+                $user->email = $req->email;
+                $user->question = $req->question;
+                $user->answer = $req->answer;
+                $user->save();
+            }
 
+            return redirect("/allaskexpert")->with('success', 'Answer Submitted Successfully!');
+        } catch (\Exception $e) {
+            // Handle the error, log it if necessary, and redirect with an error message
+            // \Log::error("Error adding backgroundpic: " . $e->getMessage());
 
-            $user->save();
-
-
-
-            return redirect("/updateuser/" . $req->id);
-        
-    }
-
-
-    function postupdateuserinfo(Request $req)
-    {
-
-        $user = User::find($req->id);
-        $user->email = $req->email;
-        $user->name = $req->name;
-        $sessionuser = session("user");
-        $sessionuser["name"] = $req->name;
-        $sessionuser["email"] = $req->email;
-       
-        session("user",$sessionuser);
-        
-        
-        echo $req->name;
-
-
-        $user->save();
-
-
-
-        return redirect('/updateprofile');
-    }
-
-
-    function searchuser(Request $req)
-    {
-        $search = $req->search;
-        // echo $search;
-        $data = DB::table("users")->orWhere("email", "like",   $search . "%")->orWhere("email", "like",  "% " . $search . "%")
-            ->orWhere("name", "like", $search . "%")->orWhere("name", "like", "% " . $search . "%")
-            
-            ->get();
-
-        // echo $data;
-        return view("allusers", ["collection" => $data]);
-        // $material  = Material::
-    }
-
-
-    function allbackgroundpics()
-    {
-        $data = DB::table("backgroundpic")->paginate(10);
-
-        return view("allbackgroundpic", ["collection" => $data]);
-    }
-
-
-    function addbackgroundpic(Request $req)
-    {
-
-
-        $BackgroundPic = new Background_Pic;
-        $BackgroundPic->added_by = $req->added_by;
-        if ($req->file("Photo")) {
-            $BackgroundPic->Photo = $req->file("Photo")->store('public');
+            // Redirect to the same page or an error page with an error message
+            return redirect("/allaskexpert")->with('error', 'Error occured while submitting answer');
         }
-        $BackgroundPic->save();
-        return view("addbackgroundpicform");
+        }
+
+    function deleteaskexpert($id)
+    {
+        try {
+            $data = AskExpert::find($id);
+
+            if ($data) {
+                // Check if the file exists and delete it
+                
+                $data->delete();
+            }
+
+            return redirect("/allaskexpert")->with('success', 'Record Deleted Successfully!');
+        } catch (\Exception $e) {
+            // Handle the error, log it if necessary, and redirect with an error message
+            // \Log::error("Error adding backgroundpic: " . $e->getMessage());
+
+            // Redirect to the same page or an error page with an error message
+            return redirect("/allaskexpert")->with('error', 'Failed to Delete Record');
+        }
     }
 
-    function updatebackgroundpic($id)
-    {
-        $material = Background_Pic::find($id);
-        return view("updatebackgroundpic", ["data" => $material]);
-    }
 
-    function postupdatebackgroundpic(Request $req)
-    {
 
-        $BackgroundPic = Background_Pic::find($req->id);
-        if ($req->file("Photo")) {
-            $BackgroundPic->Photo = $req->file("Photo")->store('public');
+        function searchaskexpert(Request $req)
+        {
+            $search = $req->search;
+            // echo $search;
+            $data = DB::table("askexpert")->orWhere("email", "like",   $search . "%")->orWhere("email", "like",  "% " . $search . "%")
+                ->orWhere("question", "like", $search . "%")->orWhere("question", "like", "% " . $search . "%")
+
+                ->orderBy('created_at', 'desc')->get();
+
+            // echo $data;
+            return view("allaskexpert", ["collection" => $data]);
+            // $material  = Material::
         }
 
 
 
-        $BackgroundPic->save();
 
 
 
-        return redirect("/updatebackgroundpic/" . $req->id);
-    }
 
 
 
@@ -919,77 +1264,97 @@ class SearchController extends Controller
 
 
 
-    function allaskexpert()
-    {
-        $data = DB::table("askexpert")->paginate(10);
 
-        return view("allaskexpert", ["collection" => $data]);
-    }
 
 
-    // function addaskexpert(Request $req)
-    // {
 
 
-    //     $user = new User;
-    //     $user->name = $req->name;
-    //     $user->email = $req->email;
-    //     $user->password = $req->password;
-    //     $user->save();
-    //     return view("adduserform");
-    // }
 
-    function updateaskexpert($id)
-    {
-        $material = AskExpert::find($id);
-        return view("updateaskexpert", ["data" => $material]);
-    }
+        function allgetquote()
+        {
+            $data = DB::table("get_quote")->orderBy('created_at', 'desc')->paginate(10);
 
-    function postupdateaskexpert(Request $req)
-    {
+            return view("allgetquote", ["collection" => $data]);
+        }
 
-        $user = AskExpert::find($req->id);
-        $user->email = $req->email;
-        $user->question = $req->question;
-        $user->answer = $req->answer;
 
+        // function addaskexpert(Request $req)
+        // {
 
 
-        $user->save();
+        //     $user = new User;
+        //     $user->name = $req->name;
+        //     $user->email = $req->email;
+        //     $user->password = $req->password;
+        //     $user->save();
+        //     return view("adduserform");
+        // }
 
+        function updategetquote($id)
+        {
+            $material = Get_Qoute::find($id);
+            return view("updategetquote", ["data" => $material]);
+        }
 
+        function postupdategetquote(Request $req)
+        {
 
-        return redirect("/updateaskexpert/" . $req->id);
-    }
+            $quote = Get_Qoute::find($req->id);
+            $quote->email = $req->email;
 
+            $quote->answer = $req->answer;
 
-    function searchaskexpert(Request $req)
-    {
-        $search = $req->search;
-        // echo $search;
-        $data = DB::table("askexpert")->orWhere("email", "like",   $search . "%")->orWhere("email", "like",  "% " . $search . "%")
-            ->orWhere("question", "like", $search . "%")->orWhere("question", "like", "% " . $search . "%")
 
-            ->get();
 
-        // echo $data;
-        return view("allaskexpert", ["collection" => $data]);
-        // $material  = Material::
-    }
+            $quote->save();
 
 
+            $email = array("name" => $quote->Name, "answer" => $quote->answer);
+            $user["to"] = $quote->email;
+            Mail::send('QuoteResponse', $email, function ($messages) use ($user) {
+                $messages->to($user["to"]);
+                $messages->subject("Quotation Response");
+            });
 
 
 
+            return redirect("/updategetquote/" . $req->id);
+        }
 
 
+        function searchgetquote(Request $req)
+        {
+            $search = $req->search;
+            // echo $search;
+            $data = DB::table("get_quote")->orWhere("email", "like",   $search . "%")->orWhere("email", "like",  "% " . $search . "%")
+                ->orWhere("question", "like", $search . "%")->orWhere("question", "like", "% " . $search . "%")
+                ->orderBy('created_at', 'desc')
+                ->get();
 
+            // echo $data;
+            return view("allgetquote", ["collection" => $data]);
+            // $material  = Material::
+        }
 
 
 
 
+        function allsearchkeyword()
+        {
+            $data = DB::table("search_history")->orderBy('created_at', 'desc')->paginate(10);
 
+            return view("allsearchkeyword", ["collection" => $data]);
+        }
 
+        function usersearchhistory()
+        {
+            $data = DB::table("search_history")
+                ->where("user_id", session("user")->id)
+                ->orderBy("created_at", "desc")
+                ->paginate();
+            // dd($data);
+            return view("usersearchhistory", ["collection" => $data]);
+        }
 
 
 
@@ -997,225 +1362,272 @@ class SearchController extends Controller
 
 
 
-    function allgetquote()
-    {
-        $data = DB::table("get_quote")->paginate(10);
 
-        return view("allgetquote", ["collection" => $data]);
-    }
 
 
-    // function addaskexpert(Request $req)
-    // {
 
 
-    //     $user = new User;
-    //     $user->name = $req->name;
-    //     $user->email = $req->email;
-    //     $user->password = $req->password;
-    //     $user->save();
-    //     return view("adduserform");
-    // }
+        function allcurrencyconversion()
+        {
+            $data = DB::table("currency_conversion")->orderBy('created_at', 'desc')->paginate(10);
 
-    function updategetquote($id)
-    {
-        $material = Get_Qoute::find($id);
-        return view("updategetquote", ["data" => $material]);
-    }
-
-    function postupdategetquote(Request $req)
-    {
-
-        $quote = Get_Qoute::find($req->id);
-        $quote->email = $req->email;
-        
-        $quote->answer = $req->answer;
-
-
-
-        $quote->save();
-
-
-        $email = array("name" => $quote->Name,"answer"=>$quote->answer);
-        $user["to"] = $quote->email;
-        Mail::send('QuoteResponse', $email, function ($messages) use ($user) {
-            $messages->to($user["to"]);
-            $messages->subject("Quotation Response");
-        });
-
-
-
-        return redirect("/updategetquote/" . $req->id);
-    }
-
-
-    function searchgetquote(Request $req)
-    {
-        $search = $req->search;
-        // echo $search;
-        $data = DB::table("get_quote")->orWhere("email", "like",   $search . "%")->orWhere("email", "like",  "% " . $search . "%")
-            ->orWhere("question", "like", $search . "%")->orWhere("question", "like", "% " . $search . "%")
-
-            ->get();
-
-        // echo $data;
-        return view("allgetquote", ["collection" => $data]);
-        // $material  = Material::
-    }
-
-
-
-
-    function allsearchkeyword()
-    {
-        $data = DB::table("search_history")->paginate(10);
-
-        return view("allsearchkeyword", ["collection" => $data]);
-    }
-
-    function usersearchhistory()
-    {
-        $data = DB::table("search_history")->where("user_id",session("user")->id)->paginate();
-        // dd($data);
-        return view("usersearchhistory", ["collection" => $data]);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-    function allcurrencyconversion()
-    {
-        $data = DB::table("currency_conversion")->paginate(10);
-
-        return view("allcurrencyconversion", ["collection" => $data]);
-    }
+            return view("allcurrencyconversion", ["collection" => $data]);
+        }
 
 
     function addcurrencyconversion(Request $req)
     {
+        try {
+            // Check if the currency already exists
+            $existingCurrency = CurrencyConversion::where('currency', $req->currency)->first();
+
+            if ($existingCurrency) {
+                // Currency already exists, redirect with an error message
+                return redirect("/allcurrencyconversion")->with('error', 'Currency already exists!');
+            }
+
+            // Currency does not exist, proceed to add
+            $user = new CurrencyConversion();
+            $user->currency = $req->currency;
+            $user->price = $req->price;
+
+            $user->save();
+            return redirect("/allcurrencyconversion")->with('success', 'Currency Added Successfully!');
+        } catch (\Exception $e) {
+            // Handle the error, log it if necessary, and redirect with an error message
+            // \Log::error("Error adding currencyconversion: " . $e->getMessage());
+
+            // Redirect to the same page or an error page with an error message
+            return redirect("/allcurrencyconversion")->with('error', 'Failed to Add Currency');
+        }
+    }
+
+        function updatecurrencyconversion($id)
+        {
+            $material = CurrencyConversion::find($id);
+            return view("updatecurrencyconversion", ["data" => $material]);
+        }
+
+        function postupdatecurrencyconversion(Request $req)
+        {
+            try {
+                $quote = CurrencyConversion::find($req->id);
+                $quote->currency = $req->currency;
+
+                $quote->price = $req->price;
 
 
-        $user = new CurrencyConversion();
-        $user->currency = $req->currency;
-        $user->proc_nice = $req->proc_nice;
+
+                $quote->save();
+
+
+
+
+                return redirect("/allcurrencyconversion")->with('success', 'Currency Updated Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding currencyconversion: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/allcurrencyconversion")->with('error', 'Failed to Update Currency');
+            }
+        }
+
+
+        function searchcurrencyconversion(Request $req)
+        {
+            $search = $req->search;
+            // echo $search;
+            $data = DB::table("currency_conversion")->orWhere("currency", "like",   $search . "%")->orWhere("currency", "like",  "% " . $search . "%")
+                ->orWhere("price", "like", $search . "%")->orWhere("price", "like", "% " . $search . "%")
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // echo $data;
+            return view("allcurrencyconversion", ["collection" => $data]);
+            // $material  = Material::
+        }
+
+
+
+        function colorscheme(Request $req)
+        {
+            $user = User::find(session("user")->id);
+            $usercolor = $req->color;
+            $sessionuser = session("user");
+            $sessionuser["color"] = $usercolor;
+
+            $user->color = $req->color;
+            $user->save();
+            session("user", $sessionuser);
+
+            return redirect("/usercolorscheme");
+        }
+
+
+
+        function deleteuser($id)
+        {
+            try {
+                $data = User::find($id);
+                $data->delete();
+                return redirect("/alluser")->with('success', 'User Deleted Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding users: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/alluser")->with('error', 'Failed to Delete User');
+            }
+        }
+
+        function deletematerial($id)
+        {
+            try {
+                $data = Material::find($id);
+                $data->delete();
+                return redirect("/allmaterial")->with('success', 'Material Deleted Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding material: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/allmaterial")->with('error', 'Failed to Delete Material');
+            }
+        }
+
+        function deleteresource($id)
+        {
+            try {
+                $data = Resource::find($id);
+                $data->delete();
+                return redirect("/allresource")->with('success', 'Resource Deleted Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding resource: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/allresource")->with('error', 'Failed to Delete Resource');
+            }
+        }
+
+        function deleteservice($id)
+        {
+            try {
+                $data = Service::find($id);
+                $data->delete();
+                return redirect("/allservice")->with('success', 'Service Deleted Successfully!');
+            } catch (\Exception $e) {
+                // Handle the error, log it if necessary, and redirect with an error message
+                // \Log::error("Error adding service: " . $e->getMessage());
+
+                // Redirect to the same page or an error page with an error message
+                return redirect("/allservice")->with('error', 'Failed to Delete Service');
+            }
+        }
+
+
+    public function exportusers()
+    {
+        return Excel::download(new UsersExport, 'users.xlsx');
+    }
+
+    public function exportmaterials()
+    {
+        return Excel::download(new MaterialsExport, 'materials.xlsx');
+    }
+
+    public function exportresources()
+    {
+        return Excel::download(new ResourcesExport, 'resources.xlsx');
+    }
+
+    public function exportservices()
+    {
+        return Excel::download(new ServicesExport, 'services.xlsx');
+    }
+
+    public function exportsearchedkeywords()
+    {
+        return Excel::download(new KeywordExport, 'searchedkeywords.xlsx');
+    }
+
+
+
+
+
+
+
+
+
+
+    public function getData($table_name, $csi, Request $request)
+    {
+        // Validate table name
+        $validTables = ['materials', 'resources', 'services', 'equipments'];
+        if (!in_array($table_name, $validTables)) {
+            return abort(404, 'Invalid table name');
+        }
+
+        // Get CSI from request parameters
         
+        if (!$csi) {
+            return redirect()->back()->with('error', 'CSI parameter is required.');
+        }
+
+        $data = [];
+        if ($table_name == "materials") {
+            $data = DB::table("materials_csv")->where('csi', $csi)->orderBy('created_at', 'desc')->limit(10)->get();
+        } else if ($table_name == "resources") {
+            $data = DB::table("resources_csv")->where('csi', $csi)->orderBy('created_at', 'desc')->limit(10)->get();
+        } else if ($table_name == "services") {
+            $data = DB::table("service_csv")->where('csi', $csi)->orderBy('created_at', 'desc')->limit(10)->get();
+        } else if ($table_name == "equipments") {
+            $data = DB::table("equipments_csv")->where('csi', $csi)->orderBy('created_at', 'desc')->limit(10)->get();
+        }
+
+        // Pass data to the view
+        return view('monthlytrend', ['data' => $data]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public function showUpdatePasswordForm()
+    {
+        return view('updatepassword');
+    }
+
+    // Handle the update password form submission
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'previous_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = User::find(session('user')->id);
+
+        if (!Hash::check($request->previous_password, $user->password)) {
+            return redirect()->back()->withErrors(['previous_password' => 'The previous password is incorrect.']);
+        }
+
+        $user->password = Hash::make($request->password);
         $user->save();
-        return view("addcurrencyconversion");
-    }
 
-    function updatecurrencyconversion($id)
-    {
-        $material = CurrencyConversion::find($id);
-        return view("updatecurrencyconversion", ["data" => $material]);
-    }
-
-    function postupdatecurrencyconversion(Request $req)
-    {
-
-        $quote = CurrencyConversion::find($req->id);
-        $quote->currency = $req->currency;
-
-        $quote->price = $req->price;
-
-
-
-        $quote->save();
-
-        
-
-
-        return redirect("/updatecurrencyconversion/" . $req->id);
-    }
-
-
-    function searchcurrencyconversion(Request $req)
-    {
-        $search = $req->search;
-        // echo $search;
-        $data = DB::table("currency_conversion")->orWhere("currency", "like",   $search . "%")->orWhere("currency", "like",  "% " . $search . "%")
-            ->orWhere("price", "like", $search . "%")->orWhere("price", "like", "% " . $search . "%")
-
-            ->get();
-
-        // echo $data;
-        return view("allcurrencyconversion", ["collection" => $data]);
-        // $material  = Material::
+        return redirect()->back()->with('success', 'Password updated successfully');
     }
 
 
 
-    function colorscheme(Request $req){
-        $user = User::find(session("user")->id);
-        $usercolor = $req->color;
-        $sessionuser = session("user");
-        $sessionuser["color"] = $usercolor;
-       
-        $user->color = $req->color;
-        $user->save();
-        session("user", $sessionuser);
-
-        return redirect("/usercolorscheme");
     }
 
-
-
-    function deleteuser($id)
-    {
-        $data = User::find($id);
-        $data->delete();
-        return redirect("alluser");
-    }
-
-    function deletematerial($id)
-    {
-        $data = Material::find($id);
-        $data->delete();
-        return redirect("allmaterial");
-    }
-
-    function deleteresource($id)
-    {
-        $data = Resource::find($id);
-        $data->delete();
-        return redirect("allresource");
-    }
-
-    function deleteservice($id)
-    {
-        $data = Service::find($id);
-        $data->delete();
-        return redirect("allservice");
-    }
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-    
-
-     
-}

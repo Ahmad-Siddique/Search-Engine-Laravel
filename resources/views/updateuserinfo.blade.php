@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+ @include('pagetitle')
     @include('bootstraplink')
 
 <style>
@@ -70,6 +70,9 @@ button {
   color: #007BFF;
   text-decoration: none;
 }
+.atag{
+    color:white; text-decoration:none
+}
 
 </style>
 
@@ -79,6 +82,9 @@ button {
     <div class="container">
   <div class="">
     <h2 class="mt-4 text-center">Update User </h2>
+     <div class="d-flex flex-row-reverse">
+    <button class="btn btn-success d-flex"><a class="atag" href="/updatepassword"> Update Password</a></button>
+     </div>
     <form method="POST" action="/postupdateuserinfo/{{session("user")->id}}" enctype="multipart/form-data">
       @csrf
 
@@ -88,7 +94,7 @@ button {
       <input type="text" class="form-control" value={{session("user")->name}} id="username" name="name" placeholder="Enter Name">
 
       <label for="password">Email</label>
-      <input type="text" class="form-control" value={{session("user")->email}} id="password" name="email" placeholder="Enter your Email">
+      <input readonly type="text" class="form-control" value={{session("user")->email}} id="password" name="email" placeholder="Enter your Email">
 
      
       <button type="submit">Submit</button>

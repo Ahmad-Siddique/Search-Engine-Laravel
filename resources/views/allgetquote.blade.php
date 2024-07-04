@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+  @include('pagetitle')
     @include('bootstraplink')
 
 <style>
@@ -97,9 +97,9 @@ button {
         <tr>
             <th>ID</th>
             <th>EMAIL</th>
-            <th>QUESTION</th>
-            <th>ANSWER</th>
-            <th>Number</th>
+            <th>Name</th>
+            <th>Organization</th>
+            <th>Phone Number</th>
            
             <th>Update</th>
             <th>Delete</th>
@@ -118,7 +118,7 @@ button {
           <td>{{$data->Name}}</td>
           <td>{{$data->Organization}}</td>
           <td>{{$data->Phone_Number}}</td>
-         
+          <td>{{strlen($data->answer) > 0 ? 'Responded' : 'Not Responded'}}</td>
           <td><button><a style="color:white; text-decoration:none" href={{"updategetquote/".$data->id}} >Answer</a></button></td>
           <td><button class="btn btn-danger"><a style="color:white; text-decoration:none" href={{"/deleteuser/".$data->id}} >Delete</a></button></td>
       </tr>

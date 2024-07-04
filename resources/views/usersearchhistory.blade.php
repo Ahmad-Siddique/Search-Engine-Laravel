@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+ @include('pagetitle')
     @include('bootstraplink')
 
 <style>
@@ -96,6 +96,11 @@ button {
         <tr>
             <th>ID</th>
             <th>Keyword</th>
+            <th>Country</th>
+            <th>Region</th>
+            <th>City</th>
+            <th>Zip Code</th>
+            <th>IP</th>
             
             
         </tr>
@@ -108,6 +113,11 @@ button {
     <tr>
         <td>{{$data->id}}</td>
         <td>{{$data->keyword}}</td>
+        <td>{{$data->countryName}}</td>
+        <td>{{$data->regionName}}</td>
+        <td>{{$data->cityName}}</td>
+        <td>{{$data->zipCode}}</td>
+        <td>{{$data->ip}}</td>
        
        
         

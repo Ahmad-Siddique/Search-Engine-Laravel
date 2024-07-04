@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+   @include('pagetitle')
     @include('bootstraplink')
 
 <style>
@@ -84,13 +84,13 @@ button {
 
       <input  type="hidden" name="id" value={{$data["id"]}} />
       <label for="username">Email</label>
-      <input type="text" readonly class="form-control" value={{$data["email"]}} id="username" name="email" placeholder="Enter CSI">
+      <input type="text" readonly class="form-control" value="<?php echo isset($data['email']) ? htmlspecialchars($data['email']) : ''; ?>" id="username" name="email" placeholder="Enter Email">
 
       <label for="text">Question</label>
-      <input type="text"readonly class="form-control" value={{$data["question"]}} id="password" name="question" placeholder="Enter your Description">
+      <input type="text"readonly class="form-control" value="<?php echo isset($data['question']) ? htmlspecialchars($data['question']) : ''; ?>"  name="question" placeholder="Enter your Question">
 
       <label for="password" class="form-label">Answer</label>
-      <input type="text" class="form-control"  id="answer" name="answer" placeholder="Enter your Answer">
+      <input type="text" class="form-control" value="<?php echo isset($data['answer']) ? htmlspecialchars($data['answer']) : ''; ?>"  id="answer" name="answer" placeholder="Enter your Answer">
 
       
 

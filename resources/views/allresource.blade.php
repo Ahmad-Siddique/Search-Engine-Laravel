@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+   @include('pagetitle')
     @include('bootstraplink')
 
 <style>
@@ -82,9 +82,24 @@ button {
     @include('header')
     <div class="container">
   <div class="">
+     @if(session('success'))
+        <div class="alert alert-success mt-3">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger mt-3">
+            {{ session('error') }}
+        </div>
+    @endif
     <h2 class="mt-4 text-center">All Resource </h2>
     
+    <div class="d-flex flex-row-reverse">
     <button class="btn btn-success d-flex"><a class="atag" href="/addresource"> Add Resource</a></button>
+    <button class="btn btn-success mx-3"><a class="atag" href="/addresourcefile"> Import File</a></button>
+    <button class="btn btn-success mx-3"><a class="atag" href="/resources/export/"> Export Resource</a></button>
+    </div>
     <div class="mt-3 mb-3">
       <form method="POST">
         @csrf

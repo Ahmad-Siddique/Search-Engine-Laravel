@@ -10,5 +10,5 @@ class Material extends Model
     use HasFactory;
     public $table = "materials_csv";
     public $timestamps = false;
-    protected $fillable = ['CSI',"Description", "Qualification", "Brief_Specs", "Function", "Origin", "Currency", "Price_Min", "Price_Max", "Unit", "Discount", "Monthly_Trend", "Availability", "Alternate", "Alternate_CSI", "Notes", "Keywords", "Photo"];
+    protected $fillable = ['CSI',"Description", "Brief_Specs", "Function", "Origin", "Currency", "Price_Min", "Price_Max", "Unit", "Discount", "Monthly_Trend", "Availability", "Alternate", "Alternate_CSI", "Notes", "Keywords", "Photo"];
 }

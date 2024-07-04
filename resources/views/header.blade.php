@@ -20,7 +20,10 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">    
 @endif
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">Construction Insight</a>
+        <a class="navbar-brand" href="/">
+            @if (Storage::disk('public')->exists('logos/logo.png'))
+            <img src="{{ asset('storage/logos/logo.png') }}" alt="Logo" style="height: 40px; margin-right: 10px;">
+        @endif Construction Insight</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -74,6 +77,15 @@
                                         <li>
                                             <a href="/allservice" class="dropdown-item">Service</a>
                                         </li>
+                                         <li>
+                                            <a href="/allequipment" class="dropdown-item">Equipment</a>
+                                        </li>
+                                        <li>
+                                            <a href="/alldocument" class="dropdown-item">Reference</a>
+                                        </li>
+                                         <li>
+                                            <a href="/allgallery" class="dropdown-item">Gallery</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 @if(session("user")->role=="admin")
@@ -109,6 +121,9 @@
                                     <ul class="dropdown-menu">
                                         <li>
                                             <a href="/allbackgroundpic" class="dropdown-item">Background Images</a>
+                                        </li>
+                                        <li>
+                                            <a href="/logo_change" class="dropdown-item">Change Logo</a>
                                         </li>
                                         {{-- <li>
                                             <a href="/allgetquote" class="dropdown-item">Logo</a>
@@ -172,6 +187,7 @@
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="/updateprofile">Profile</a></li>
                                 <li><a class="dropdown-item" href="/usersearchhistory">Search History</a></li>
+                                <li><a class="dropdown-item" href="/module-names">Module Names</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+   @include('pagetitle')
     @include('bootstraplink')
 
 <style>
@@ -82,9 +82,11 @@ button {
     @include('header')
     <div class="container">
   <div class="">
-    <h2 class="mt-4 text-center">All Resource </h2>
-    
-    <button class="btn btn-success d-flex"><a class="atag" href="/addresource"> Add Resource</a></button>
+    <h2 class="mt-4 text-center">All Keywork Searches </h2>
+    <div class="d-flex">
+    <button class="btn btn-success "><a class="atag" href="/analytics"> Analytics</a></button>
+     <button class="btn btn-success mx-2"><a class="atag" href="/searchedkeywords/export/"> Export Searched Keywords</a></button>
+    </div>
     <div class="mt-3 mb-3">
       <form method="POST">
         @csrf
