@@ -426,7 +426,17 @@ class SearchController extends Controller
             return redirect("/login");
         } else {
             // return $user;
-            $moduleNames = ModuleName::firstOrCreate(['user_id' => $user->id]);
+
+
+            // Put module names in the session
+            $moduleNames = ModuleName::firstOrCreate([], [
+                'material' => 'material',
+                'resource' => 'resource',
+                'service' => 'service',
+                'equipment' => 'equipment',
+                'reference' => 'reference',
+                'gallery' => 'gallery',
+            ]);
 
             // Put module names in the session
             $req->session()->put('module_names', $moduleNames);

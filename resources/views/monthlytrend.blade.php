@@ -46,7 +46,7 @@
 <body class="antialiased">
     @include('header')
     <div class="container my-5">
-     <h1>Price_Min vs Timestamp</h1>
+     <h1>Monthly Trend</h1>
     <canvas id="myChart" width="400" height="200"></canvas>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
