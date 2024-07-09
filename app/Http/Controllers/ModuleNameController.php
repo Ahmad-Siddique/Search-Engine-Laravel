@@ -15,14 +15,16 @@ class ModuleNameController extends Controller
     try {
         // Fetch the first record or create a new one with default values if none exists
         $moduleNames = ModuleName::firstOrCreate([], [
+            'user_id'=> $user->id,
             'material' => 'material',
             'resource' => 'resource',
             'service' => 'service',
             'equipment' => 'equipment',
             'reference' => 'reference',
             'gallery' => 'gallery',
+            'knowledgebase' => 'Knowledgebase',
         ]);
-
+    // return "gg";
         // Put module names in the session
         $request->session()->put('module_names', $moduleNames);
 
@@ -40,7 +42,7 @@ public function update(Request $request)
     if ($user->role !== 'admin') {
         return redirect()->back()->with('error', 'Only admins can update the module names.');
     }
-
+  
     try {
         // Fetch the first record
         $moduleNames = ModuleName::first();
@@ -48,19 +50,22 @@ public function update(Request $request)
         // If no record exists, create one with default values
         if (!$moduleNames) {
             $moduleNames = new ModuleName([
+                'user_id'=> $user->id,
                 'material' => 'material',
                 'resource' => 'resource',
                 'service' => 'service',
                 'equipment' => 'equipment',
                 'reference' => 'reference',
                 'gallery' => 'gallery',
+                'knowledgebase' => 'Knowledgebase',
             ]);
         }
 
         // Update the record with the new data
-        $moduleNames->fill($request->only(['material', 'resource', 'service', 'equipment', 'reference', 'gallery']));
+        $moduleNames->fill($request->only(['material', 'resource', 'service', 'equipment', 'reference', 'gallery','knowledgebase']));
         $moduleNames->save();
 
+        // return $moduleNames;
         // Update the session with the new module names
         $request->session()->put('module_names', $moduleNames);
 

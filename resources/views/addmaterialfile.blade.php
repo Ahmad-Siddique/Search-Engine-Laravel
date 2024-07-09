@@ -77,9 +77,23 @@
 
 <body>
     @include('header')
+    @php
+                    $moduleNames = session(
+                        'module_names',
+                        (object) [
+                            'material' => 'Materials',
+                            'resource' => 'Resources',
+                            'service' => 'Services',
+                            'equipment' => 'Equipments',
+                            'reference' => 'Reference',
+                            'gallery' => 'Gallery',
+                            'knowledgebase'=>'KnowledgeBase'
+                        ],
+                    );
+                @endphp
     <div class="container">
         <div class="">
-            <h2 class="mt-4 text-center">Add Material with File </h2>
+            <h2 class="mt-4 text-center">Add {{$moduleNames->material}} with File </h2>
 
 
             <form method="POST" action="/addmaterialfile" enctype="multipart/form-data">

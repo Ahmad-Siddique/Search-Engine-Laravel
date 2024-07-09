@@ -76,9 +76,23 @@ button {
 </head>
 <body>
     @include('header')
+    @php
+                    $moduleNames = session(
+                        'module_names',
+                        (object) [
+                            'material' => 'Materials',
+                            'resource' => 'Resources',
+                            'service' => 'Services',
+                            'equipment' => 'Equipments',
+                            'reference' => 'Reference',
+                            'gallery' => 'Gallery',
+                            'knowledgebase'=>'KnowledgeBase'
+                        ],
+                    );
+                @endphp
     <div class="container">
   <div class="">
-    <h2 class="mt-4 text-center">Add Gallery </h2>
+    <h2 class="mt-4 text-center">Add {{$moduleNames->gallery}} </h2>
 
    
     <form method="POST" enctype="multipart/form-data">

@@ -60,6 +60,16 @@
                     @if(session("user"))
                     
                     @if (session('user')->role=="admin" || session("user")->role=="datamanager")
+                    <li class="nav-item">
+                        <a class="nav-link active" 
+                            aria-current="page" href="/privacy-policy/edit">Privacy Policy</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link active" 
+                            aria-current="page" href="/disclaimer/edit">Disclaimer</a>
+                    </li>
+
                         <li class="nav-item dropdown ">
                             <a href="#" id="menu" data-bs-toggle="dropdown"
                                 class="nav-link active dropdown-toggle" data-bs-display="static">Control Panel</a>
@@ -125,6 +135,9 @@
                                         <li>
                                             <a href="/logo_change" class="dropdown-item">Change Logo</a>
                                         </li>
+                                        <li>
+                                        <li><a class="dropdown-item" href="/module-names">Module Names</a></li>
+                                        </li>
                                         {{-- <li>
                                             <a href="/allgetquote" class="dropdown-item">Logo</a>
                                         </li> --}}
@@ -187,7 +200,7 @@
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="/updateprofile">Profile</a></li>
                                 <li><a class="dropdown-item" href="/usersearchhistory">Search History</a></li>
-                                <li><a class="dropdown-item" href="/module-names">Module Names</a></li>
+                               
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>

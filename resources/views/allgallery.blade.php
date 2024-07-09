@@ -80,6 +80,20 @@ button {
 </head>
 <body>
     @include('header')
+    @php
+                    $moduleNames = session(
+                        'module_names',
+                        (object) [
+                            'material' => 'Materials',
+                            'resource' => 'Resources',
+                            'service' => 'Services',
+                            'equipment' => 'Equipments',
+                            'reference' => 'Reference',
+                            'gallery' => 'Gallery',
+                            'knowledgebase'=>'KnowledgeBase'
+                        ],
+                    );
+                @endphp
     <div class="container">
   <div class="">
      @if(session('success'))
@@ -93,9 +107,9 @@ button {
             {{ session('error') }}
         </div>
     @endif
-    <h2 class="mt-4 text-center">All Gallery </h2>
+    <h2 class="mt-4 text-center">All {{$moduleNames->gallery}} </h2>
     <div class="d-flex flex-row-reverse">
-    <button class="btn btn-success d-flex"><a class="atag" href="/addgallery"> Add Gallery</a></button>
+    <button class="btn btn-success d-flex"><a class="atag" href="/addgallery"> Add {{$moduleNames->gallery}}</a></button>
     <button class="btn btn-success mx-3"><a class="atag" href="/addgalleryfile"> Import File</a></button>
     </div>
     <div class="mt-3 mb-3">

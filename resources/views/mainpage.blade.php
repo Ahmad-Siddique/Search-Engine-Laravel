@@ -10,7 +10,12 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
-
+    <!-- <link
+            rel="icon"
+            href=
+"https://media.geeksforgeeks.org/wp-content/cdn-uploads/gfg_200X200.png"
+            type="image/x-icon"
+        /> -->
     <!-- Styles -->
     <style>
        
@@ -29,6 +34,12 @@
             width: 100%;
             height: 100%;
 
+        }
+
+        .footer{
+            position: absolute;
+            bottom:0;
+            width: 100%;
         }
 
         .centering {
@@ -161,9 +172,14 @@
                     </div>
                 </form>
             </div>
+           <div class="footer">
+           @include('footer')
+           </div>
         </div>
+        
+        
     </div>
-    @include('footer')
+    
 </body>
 
 </html>

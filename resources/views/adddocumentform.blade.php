@@ -66,10 +66,25 @@
     </style>
 </head>
 <body>
+    
+@php
+                    $moduleNames = session(
+                        'module_names',
+                        (object) [
+                            'material' => 'Materials',
+                            'resource' => 'Resources',
+                            'service' => 'Services',
+                            'equipment' => 'Equipments',
+                            'reference' => 'Reference',
+                            'gallery' => 'Gallery',
+                            'knowledgebase'=>'KnowledgeBase'
+                        ],
+                    );
+                @endphp
     @include('header')
     <div class="container">
         <div class="">
-            <h2 class="mt-4 text-center">Add Reference </h2>
+            <h2 class="mt-4 text-center">Add {{$moduleNames->reference}} </h2>
             <form method="POST" enctype="multipart/form-data">
                 @csrf
                 <label for="username">CSI</label>

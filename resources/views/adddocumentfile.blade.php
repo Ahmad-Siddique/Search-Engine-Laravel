@@ -74,11 +74,26 @@ button {
 </style>
 
 </head>
+
+@php
+                    $moduleNames = session(
+                        'module_names',
+                        (object) [
+                            'material' => 'Materials',
+                            'resource' => 'Resources',
+                            'service' => 'Services',
+                            'equipment' => 'Equipments',
+                            'reference' => 'Reference',
+                            'gallery' => 'Gallery',
+                            'knowledgebase'=>'KnowledgeBase'
+                        ],
+                    );
+                @endphp
 <body>
     @include('header')
     <div class="container">
   <div class="">
-    <h2 class="mt-4 text-center">Add Reference with File </h2>
+    <h2 class="mt-4 text-center">Add {{$moduleNames->reference}} with File </h2>
 
    
     <form method="POST" action="/adddocumentfile" enctype="multipart/form-data" >

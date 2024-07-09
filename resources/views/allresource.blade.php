@@ -80,6 +80,20 @@ button {
 </head>
 <body>
     @include('header')
+    @php
+                    $moduleNames = session(
+                        'module_names',
+                        (object) [
+                            'material' => 'Materials',
+                            'resource' => 'Resources',
+                            'service' => 'Services',
+                            'equipment' => 'Equipments',
+                            'reference' => 'Reference',
+                            'gallery' => 'Gallery',
+                            'knowledgebase'=>'KnowledgeBase'
+                        ],
+                    );
+                @endphp
     <div class="container">
   <div class="">
      @if(session('success'))
@@ -93,12 +107,12 @@ button {
             {{ session('error') }}
         </div>
     @endif
-    <h2 class="mt-4 text-center">All Resource </h2>
+    <h2 class="mt-4 text-center">All {{$moduleNames->resource}} </h2>
     
     <div class="d-flex flex-row-reverse">
-    <button class="btn btn-success d-flex"><a class="atag" href="/addresource"> Add Resource</a></button>
+    <button class="btn btn-success d-flex"><a class="atag" href="/addresource"> Add {{$moduleNames->resource}}</a></button>
     <button class="btn btn-success mx-3"><a class="atag" href="/addresourcefile"> Import File</a></button>
-    <button class="btn btn-success mx-3"><a class="atag" href="/resources/export/"> Export Resource</a></button>
+    <button class="btn btn-success mx-3"><a class="atag" href="/resources/export/"> Export {{$moduleNames->resource}}</a></button>
     </div>
     <div class="mt-3 mb-3">
       <form method="POST">

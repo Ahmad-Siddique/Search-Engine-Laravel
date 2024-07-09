@@ -80,6 +80,20 @@ button {
 </head>
 <body>
     @include('header')
+    @php
+                    $moduleNames = session(
+                        'module_names',
+                        (object) [
+                            'material' => 'Materials',
+                            'resource' => 'Resources',
+                            'service' => 'Services',
+                            'equipment' => 'Equipments',
+                            'reference' => 'Reference',
+                            'gallery' => 'Gallery',
+                            'knowledgebase'=>'KnowledgeBase'
+                        ],
+                    );
+                @endphp
     <div class="container">
   <div class="">
     @if(session('success'))
@@ -93,12 +107,14 @@ button {
             {{ session('error') }}
         </div>
     @endif
-    <h2 class="mt-4 text-center">All Material </h2>
+    <h2 class="mt-4 text-center">All {{$moduleNames->material}} </h2>
 
     <div class="d-flex flex-row-reverse">
-    <button class="btn btn-success "><a class="atag" href="/addmaterial"> Add Material</a></button>
+    <button class="btn btn-success "><a class="atag" href="/addmaterial"> Add {{$moduleNames->material}}
+    </a></button>
     <button class="btn btn-success mx-3"><a class="atag" href="/addmaterialfile"> Import File</a></button>
-    <button class="btn btn-success mx-3"><a class="atag" href="/materials/export/"> Export Material</a></button>
+    <button class="btn btn-success mx-3"><a class="atag" href="/materials/export/"> Export {{$moduleNames->material}} 
+    </a></button>
     </div>
 
      <div class="mt-3 mb-3">
@@ -142,7 +158,11 @@ button {
 
     @endif
 </table>
-{{ $collection->links() }}
+@isset($collection)
+    @if ($collection->count() > 0)
+        {{ $collection->links() }}
+    @endif
+@endisset
   </div>
 
   

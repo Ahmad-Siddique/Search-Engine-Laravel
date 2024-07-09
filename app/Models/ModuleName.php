@@ -17,5 +17,6 @@ class ModuleName extends Model
         'equipment',
         'reference',
         'gallery',
+        'knowledgebase'
     ];
 }

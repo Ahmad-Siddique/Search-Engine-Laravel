@@ -8,6 +8,7 @@ use App\Http\Controllers\DocumentsController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\LogoController;
 use App\Http\Controllers\ModuleNameController;
+use App\Http\Controllers\PrivacyPolicyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +40,7 @@ Route::post('/searching', [SearchController::class, "FetchSearchedData"]);
 Route::get("/services/{search}/{category}/{sorting}/{currency}",[SearchController::class,"FetchServices"]);
 Route::get("/resources/{search}/{category}/{sorting}/{currency}", [SearchController::class, "FetchResources"]);
 Route::get("/materials/{search}/{category}/{sorting}/{currency}", [SearchController::class, "FetchMaterials"]);
+Route::get("/knowledgebase/{search}/{category}/{sorting}/{currency}", [SearchController::class, "FetchKnowledge"]);
 Route::get("/equipments/{search}/{category}/{sorting}/{currency}", [EquipmentController::class, "FetchEquipments"]);
 Route::get("/documents/{search}/{category}/{sorting}/{currency}", [DocumentsController::class, "FetchDocuments"]);
 Route::get("/gallery/{search}/{category}/{sorting}/{currency}", [GalleryController::class, "FetchGallery"]);
@@ -285,4 +287,12 @@ Route::group([ 'middleware' => ['web', 'datamanager']], function () {
 
     Route::get('/logo_change', [LogoController::class, 'showForm']);
     Route::post('/logo_change', [LogoController::class, 'upload']);
+
+
+    Route::get('privacy-policy/edit', [PrivacyPolicyController::class, 'edit'])->name('privacy-policies.edit');
+    Route::put('privacy-policy/update', [PrivacyPolicyController::class, 'update'])->name('privacy-policies.update');
+
+    Route::get('disclaimer/edit', [PrivacyPolicyController::class, 'disclaimeredit'])->name('disclaimer.edit');
+    Route::put('disclaimer/update', [PrivacyPolicyController::class, 'disclaimerupdate'])->name('disclaimer.update');
+
 });

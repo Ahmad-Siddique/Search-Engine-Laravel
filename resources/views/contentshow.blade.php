@@ -272,6 +272,7 @@
                             'equipment' => 'Equipments',
                             'reference' => 'Reference',
                             'gallery' => 'Gallery',
+                            'knowledgebase'=>'KnowledgeBase'
                         ],
                     );
                 @endphp
@@ -288,6 +289,8 @@
                     href="/gallery/{{ $data }}/{{ $category }}/{{ $sorting }}/{{ $currency }}">{{ $moduleNames->gallery }}</a>
                 <a style="border:none;text-decoration:none" class="btn btn-lg btn-outline-dark"
                     href="/documents/{{ $data }}/{{ $category }}/{{ $sorting }}/{{ $currency }}">{{ $moduleNames->reference }}</a>
+                    <a style="border:none;text-decoration:none" class="btn btn-lg btn-outline-dark"
+                    href="/knowledgebase/{{ $data }}/{{ $category }}/{{ $sorting }}/{{ $currency }}">KnowledgeBase</a>
             @endisset
         </div>
 
@@ -311,6 +314,34 @@
                         @endif
                         {{-- {{ $resource->links() }} --}}
                     @endisset
+
+
+
+
+
+                    @isset($knowledgebase)
+    @if (!$knowledgebase->isEmpty())
+        <h3 class="mb-3">Knowledgebase</h3>
+        @foreach ($knowledgebase as $item)
+            <div class="row">
+                <div class="col-8">
+                    <div class="mb-2 mt-2">
+                        <div><b>Question: </b>{{ $item->question }}</div>
+                        <div><b>Answer: </b>{{ $item->answer }}</div>
+                    </div>
+                  
+                </div>
+            </div>
+        @endforeach
+    @endif
+@endisset
+
+
+
+
+
+
+
 
 
                     @isset($materials)

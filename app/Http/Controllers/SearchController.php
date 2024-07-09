@@ -218,6 +218,7 @@ class SearchController extends Controller
         // $services = $services->get();
         // return $currency_rate;
 
+        //  return $currency_rate;
         // return $resource;
         return view("contentshow", ["data" => $data, "resource" => $resource, "services" => $services, "equipments" => $equipments, "materials" => $materials, "gallery" => $gallery, "documents" => $documents, "category" => $category, "sorting" => $sorting, "country" => $country, "currency" => $currency, "currency_rate" => $currency_rate,"currencies"=>$currencies]);
 
@@ -394,6 +395,81 @@ class SearchController extends Controller
         // return $resource;
         return view("contentshow", ["data" => $search, "materials" => $materials, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate, "currencies" => $currencies]);
     }
+
+
+    function FetchKnowledge($search, $category, $sorting, $currency)
+    {
+
+        if ($currency) {
+
+
+            $currencyrate = $currency;
+        }
+
+
+        $currency_rate = DB::table("currency_conversion")->where("currency", $currencyrate)->get();
+        // $response = Http::post("http://127.0.0.1:7000/searchingdata", [
+        //     "search" => $search
+        // ]);
+        // $keywords = $response->json();
+
+        $data = trim($search);
+        $keywords = explode("+", $data);
+        $keys = array_keys($keywords);
+
+
+        $materials = DB::table("askexpert");
+
+        for ($x = 0; $x < count($keywords); $x++) {
+
+            $materials = DB::table("askexpert")
+    ->whereNotNull('answer') // Filter records where answer is not null
+    ->where(function ($query) use ($keywords) {
+        for ($x = 0; $x < count($keywords); $x++) {
+            $query->orWhere("question", "like", $keywords[$x] . "%")
+                  ->orWhere("question", "like", "% " . $keywords[$x] . "%")
+                  ->orWhere("answer", "like", $keywords[$x] . "%")
+                  ->orWhere("answer", "like", "% " . $keywords[$x] . "%");
+        }
+    })
+    ->paginate(10);
+
+        }
+
+        // if ($category == "Price") {
+        //     if ($sorting == "Ascending" || $sorting == "None") {
+
+        //         $materials = $materials->orderBy('Price_Min', 'asc');
+        //     } else {
+
+        //         $materials = $materials->orderBy('Price_Max', 'desc');
+        //     }
+        // } else if ($category == "Origin") {
+        //     if ($sorting == "Ascending" || $sorting == "None") {
+
+        //         $materials = $materials->orderBy('Origin', 'asc');
+        //     } else {
+
+        //         $materials = $materials->orderBy('Origin', 'desc');
+        //     }
+        // } else if ($category == "Availability") {
+        //     if ($sorting == "Ascending" || $sorting == "None") {
+
+        //         $materials = $materials->orderBy('Availability', 'asc');
+        //         // $services = $resource->orderBy('Location', 'asc');
+        //     } else {
+
+        //         $materials = $materials->orderBy('Availability', 'desc');
+        //         // $services = $resource->orderBy('Location', 'desc');
+        //     }
+        // }
+
+        $currencies = CurrencyConversion::pluck('currency')->toArray();
+        
+        // return $resource;
+        return view("contentshow", ["data" => $search, "knowledgebase" => $materials, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate, "currencies" => $currencies]);
+    }
+
 
     function FetchImages($search, $category, $sorting)
     {

@@ -110,6 +110,11 @@
                 <input type="text" name="gallery" class="form-control"
                     value="{{ session('module_names')->gallery ?? $moduleNames->gallery }}">
             </div>
+            <div class="form-group">
+                <label for="gallery">Knowledgebase</label>
+                <input type="text" name="knowledgebase" class="form-control"
+                    value="{{ session('module_names')->knowledgebase ?? $moduleNames->knowledgebase }}">
+            </div>
             <button type="submit" class="btn btn-primary">Update</button>
         </form>
     </div>
