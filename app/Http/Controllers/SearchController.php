@@ -1004,6 +1004,7 @@ class SearchController extends Controller
             $quote->Phone_Number = $req->Phone_Number;
             $quote->Item_Description = $req->Item_Description;
             $quote->Quantity = $req->Quantity;
+            $quote->CSI = $req->CSI;
 
 
             $quote->Notes = $req->Notes;
@@ -1011,12 +1012,12 @@ class SearchController extends Controller
 
 
             $quote->save();
-            $email = array("name" => $quote->Name);
-            $user["to"] = $quote->email;
-            Mail::send('quotemail', $email, function ($messages) use ($user) {
-                $messages->to($user["to"]);
-                $messages->subject("Quotation Response");
-            });
+            // $email = array("name" => $quote->Name);
+            // $user["to"] = $quote->email;
+            // Mail::send('quotemail', $email, function ($messages) use ($user) {
+            //     $messages->to($user["to"]);
+            //     $messages->subject("Quotation Response");
+            // });
 
 
             return back();
@@ -1382,30 +1383,21 @@ class SearchController extends Controller
             return view("updategetquote", ["data" => $material]);
         }
 
-        function postupdategetquote(Request $req)
+        public function postupdategetquote(Request $req)
         {
-
             $quote = Get_Qoute::find($req->id);
+            
+            if (!$quote) {
+                return redirect("/getallquote")->with('error', 'Quote not found.'); // Redirect with error message
+            }
+            
             $quote->email = $req->email;
-
             $quote->answer = $req->answer;
-
-
-
             $quote->save();
-
-
-            $email = array("name" => $quote->Name, "answer" => $quote->answer);
-            $user["to"] = $quote->email;
-            Mail::send('QuoteResponse', $email, function ($messages) use ($user) {
-                $messages->to($user["to"]);
-                $messages->subject("Quotation Response");
-            });
-
-
-
-            return redirect("/updategetquote/" . $req->id);
+        
+            return redirect("/allgetquote" )->with('success', 'Quote updated successfully.'); // Redirect with success message
         }
+        
 
 
         function searchgetquote(Request $req)

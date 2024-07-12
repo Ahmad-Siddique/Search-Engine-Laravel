@@ -98,6 +98,9 @@ button {
       <label for="password" class="form-label">Phone Number</label>
       <input type="text" class="form-control" value={{$data["Phone_Number"]}}  id="answer" name="Phone_Number" placeholder="Enter your Answer">
 
+      <label for="password" class="form-label">CSI Code</label>
+      <input type="text" class="form-control" value={{$data["CSI"]}}  id="answer" name="Item_Description" placeholder="Enter your Answer">
+
       <label for="password" class="form-label">Item Description</label>
       <input type="text" class="form-control" value={{$data["Item_Description"]}}  id="answer" name="Item_Description" placeholder="Enter your Answer">
 
