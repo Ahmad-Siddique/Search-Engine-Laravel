@@ -22,11 +22,12 @@ use Illuminate\Support\Facades\Storage;
 use App\Imports\MaterialsImport;
 use App\Imports\ResourcesImport;
 use App\Imports\ServicesImport;
-
+use App\Models\UserList;
 use App\Exports\UsersExport;
 use App\Exports\MaterialsExport;
 use App\Exports\ServicesExport;
 use App\Exports\ResourcesExport;
+use App\Exports\UserListExport;
 use App\Models\ModuleName;
 use Illuminate\Support\Facades\Session;
 use Mail;
@@ -1706,6 +1707,47 @@ class SearchController extends Controller
     }
 
 
+
+
+    // User List
+
+    public function addToList(Request $request)
+    {
+        $user = session('user');
+        $userList = new UserList();
+        $userList->user_id = $user->id;
+        $userList->CSI = $request->input('CSI');
+        $userList->Description = $request->input('Description');
+        $userList->Specs = $request->input('Specs');
+        $userList->Currency = $request->input('Currency');
+        $userList->Price_Min = $request->input('Price_Min');
+        $userList->Price_Max = $request->input('Price_Max');
+        $userList->save();
+
+        return redirect()->back()->with('success', 'Item added to list successfully.');
+    }
+
+    public function userList()
+    {
+        $user = session('user');
+        $userLists = UserList::where('user_id', $user->id)->get();
+
+        return view('alluserlist', compact('userLists'));
+    }
+
+    public function exportList()
+    {
+        $user = session('user');
+        $fileName = 'user_list_' . $user->id . '.xlsx';
+        // Excel::download(new MaterialsExport, 'materials.xlsx');
+        // Export the list
+        return Excel::download(new UserListExport($user->id), "userlist.xlsx");
+
+        // Delete data after export
+        UserList::where('user_id', $user->id)->delete();
+
+        return redirect()->back()->with('success', 'List exported and deleted successfully.');
+    }
 
     }
 

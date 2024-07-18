@@ -295,4 +295,13 @@ Route::group([ 'middleware' => ['web', 'datamanager']], function () {
     Route::get('disclaimer/edit', [PrivacyPolicyController::class, 'disclaimeredit'])->name('disclaimer.edit');
     Route::put('disclaimer/update', [PrivacyPolicyController::class, 'disclaimerupdate'])->name('disclaimer.update');
 
+    Route::get('disclaimer', [PrivacyPolicyController::class, 'disclaimerview'])->name('disclaimer.update');
+    Route::get('privacy-policy', [PrivacyPolicyController::class, 'privacypolicyview'])->name('disclaimer.update');
+
+
+
+    Route::post('/add-to-list', [SearchController::class, 'addToList'])->name('materials.add_to_list');
+    Route::get('/user-list', [SearchController::class, 'userList'])->name('materials.user_list');
+    Route::post('/export-list', [SearchController::class, 'exportList'])->name('materials.export_list');
+
 });

@@ -322,88 +322,97 @@
 
 
                     @isset($materials)
-                    @if (!$materials->isEmpty())
-                    <h3 class="mb-3">{{ $moduleNames->material }}</h3>
-                    @foreach ($materials as $item)
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="mb-2 mt-2">
+    @if (!$materials->isEmpty())
+        <h3 class="mb-3">{{ $moduleNames->material }}</h3>
+        @foreach ($materials as $item)
+            <div class="row">
+                <div class="col-8">
+                    <div class="mb-2 mt-2">
 
-                                <div>{{ $item->Description }}</div>
-                                <div>CSI Code | {{ $item->CSI }}</div>
-                                <div>Description | {{ $item->Description }}</div>
-                                {{-- <div>{{ $item->Qualification }}
-                            </div> --}}
-                            <div>Origin | {{ $item->Origin }}</div>
-                            <div>Currency | {{ $currency_rate[0]->currency }}</div>
-                            <div>Monthly Trend | {{ $item->Monthly_Trend }}</div>
-                            <div class="collapse" id="gte{{ $item->id }}">
-                                <div>Price Min |
-                                    {{-- {{$item->Price_Min}} --}}
-                                    <strong>{{ number_format(fdiv($item->Price_Min, $currency_rate[0]->price)) }}</strong>
-
-                                </div>
-                                @if (session('user'))
-                                @if (session('user')->role == 'admin' || session('user')->role == 'datamanager' || session('user')->role == 'subscriber')
-                                <div>Price Max |
-                                    {{ number_format(fdiv($item->Price_Max, $currency_rate[0]->price)) }}
-                                </div>
-
-                                @if ($item->CSI)
-                                <div>
-                                    <a href="/monthly_trend/materials/{{ $item->CSI }}">Monthly
-                                        Price Trend</a>
-                                    <strong>{{ $item->Monthly_Trend }}</strong>
-                                </div>
-                                @endif
-                                @endif
-                                @endif
+                        <div>{{ $item->Description }}</div>
+                        <div>CSI Code | {{ $item->CSI }}</div>
+                        <div>Description | {{ $item->Description }}</div>
+                        <div>Origin | {{ $item->Origin }}</div>
+                        <div>Currency | {{ $currency_rate[0]->currency }}</div>
+                        <div>Monthly Trend | {{ $item->Monthly_Trend }}</div>
+                        <div class="collapse" id="gte{{ $item->id }}">
+                            <div>Price Min |
+                                <strong>{{ number_format(fdiv($item->Price_Min, $currency_rate[0]->price)) }}</strong>
                             </div>
-                            <div>Availability <strong>{{ $item->Availability }}</strong> </div>
-
-
+                            @if (session('user'))
+                                @if (session('user')->role == 'admin' || session('user')->role == 'datamanager' || session('user')->role == 'subscriber')
+                                    <div>Price Max |
+                                        {{ number_format(fdiv($item->Price_Max, $currency_rate[0]->price)) }}
+                                    </div>
+                                    @if ($item->CSI)
+                                        <div>
+                                            <a href="/monthly_trend/materials/{{ $item->CSI }}">Monthly Price Trend</a>
+                                            <strong>{{ $item->Monthly_Trend }}</strong>
+                                        </div>
+                                    @endif
+                                @endif
+                            @endif
                         </div>
-
-                        <a class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#gte{{ $item->id }}" role="button" aria-expanded="false" aria-controls="collapse">
-                            Read More/Less
-                        </a>
-
-
+                        <div>Availability <strong>{{ $item->Availability }}</strong></div>
                     </div>
 
+                    <a class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#gte{{ $item->id }}" role="button" aria-expanded="false" aria-controls="collapse">
+                        Read More/Less
+                    </a>
+
+                    <form action="{{ route('materials.add_to_list') }}" method="POST">
+                        @csrf
+                        @if(!empty($item->CSI))
+                            <input type="hidden" name="CSI" value="{{ $item->CSI }}">
+                        @else
+                            <input type="hidden" name="CSI" value="">
+                        @endif
+                        @if(!empty($item->Description))
+                            <input type="hidden" name="Description" value="{{ $item->Description }}">
+                        @else
+                            <input type="hidden" name="Description" value="">
+                        @endif
+                        @if(!empty($item->Specification))
+                            <input type="hidden" name="Specs" value="{{ $item->Specification }}">
+                        @else
+                            <input type="hidden" name="Specs" value="">
+                        @endif
+                        @if(!empty($currency_rate[0]->currency))
+                            <input type="hidden" name="Currency" value="{{ $currency_rate[0]->currency }}">
+                        @else
+                            <input type="hidden" name="Currency" value="">
+                        @endif
+                        @if(!empty($item->Price_Min))
+                            <input type="hidden" name="Price_Min" value="{{ $item->Price_Min }}">
+                        @else
+                            <input type="hidden" name="Price_Min" value="0">
+                        @endif
+                        @if(!empty($item->Price_Max))
+                            <input type="hidden" name="Price_Max" value="{{ $item->Price_Max }}">
+                        @else
+                            <input type="hidden" name="Price_Max" value="0">
+                        @endif
+                        <button type="submit" class="btn btn-secondary mt-2">Add to list</button>
+                    </form>
                 </div>
 
                 <div class="col-3">
                     <?php
-                    // Check if $item->Photo exists, is not empty, and is not just a "-"
                     if (isset($item->Photo) && !empty($item->Photo) && $item->Photo !== '-' && $item->Photo !== 'Photo') {
-                        // Debugging output
-                        // echo '<p>Original Photo: ' . htmlspecialchars($item->Photo) . '</p>';
-
-                        // Determine if $item->Photo is a URL
                         if (filter_var($item->Photo, FILTER_VALIDATE_URL)) {
-                            // $item->Photo is a URL, display the image
-                            // echo "<img src='" . htmlspecialchars($item->Photo) . "' alt='cement pic' width='100%' />";
+                            echo "<img src='" . htmlspecialchars($item->Photo) . "' alt='material photo' width='100%' />";
                         } else {
-                            // Adjust the file path to remove 'public/' prefix and prepare for public/storage
                             $filePath = str_replace('public/', 'storage/', $item->Photo);
-                            $encodedFilePath = rawurlencode($filePath); // Encode the file path for URL
-
-                            // echo '<p>Adjusted File Path: ' . htmlspecialchars($filePath) . '</p>';
-                            // echo '<p>Encoded File Path: ' . htmlspecialchars($encodedFilePath) . '</p>';
-
-                            // // Display the image with the correct path
-                            echo "<img src='" . htmlspecialchars('/' . $filePath) . "' alt='cement pic' width='100%' />";
+                            echo "<img src='" . htmlspecialchars('/' . $filePath) . "' alt='material photo' width='100%' />";
                         }
-                    } else {
-                        // $item->Photo does not exist, is empty, or is "-", optional: display a placeholder or nothing
                     }
                     ?>
                 </div>
-                @endforeach
-                @endif
-                {{-- {{ $materials->links() }} --}}
-                @endisset
+            </div>
+        @endforeach
+    @endif
+@endisset
+
 
 
 
@@ -457,7 +466,40 @@
                             Read More/Less
                         </a>
 
-
+                        <form action="{{ route('materials.add_to_list') }}" method="POST">
+                        @csrf
+                        @if(!empty($item->CSI))
+                            <input type="hidden" name="CSI" value="{{ $item->CSI }}">
+                        @else
+                            <input type="hidden" name="CSI" value="">
+                        @endif
+                        @if(!empty($item->Description))
+                            <input type="hidden" name="Description" value="{{ $item->Description }}">
+                        @else
+                            <input type="hidden" name="Description" value="">
+                        @endif
+                        @if(!empty($item->Specification))
+                            <input type="hidden" name="Specs" value="{{ $item->Specification }}">
+                        @else
+                            <input type="hidden" name="Specs" value="">
+                        @endif
+                        @if(!empty($currency_rate[0]->currency))
+                            <input type="hidden" name="Currency" value="{{ $currency_rate[0]->currency }}">
+                        @else
+                            <input type="hidden" name="Currency" value="">
+                        @endif
+                        @if(!empty($item->Price_Min))
+                            <input type="hidden" name="Price_Min" value="{{ $item->Price_Min }}">
+                        @else
+                            <input type="hidden" name="Price_Min" value="0">
+                        @endif
+                        @if(!empty($item->Price_Max))
+                            <input type="hidden" name="Price_Max" value="{{ $item->Price_Max }}">
+                        @else
+                            <input type="hidden" name="Price_Max" value="0">
+                        @endif
+                        <button type="submit" class="btn btn-secondary mt-2">Add to list</button>
+                    </form>
 
 
 
@@ -656,7 +698,40 @@
                         Read More/Less
                     </a>
 
-
+                    <form action="{{ route('materials.add_to_list') }}" method="POST">
+                        @csrf
+                        @if(!empty($item->CSI))
+                            <input type="hidden" name="CSI" value="{{ $item->CSI }}">
+                        @else
+                            <input type="hidden" name="CSI" value="">
+                        @endif
+                        @if(!empty($item->Description))
+                            <input type="hidden" name="Description" value="{{ $item->Description }}">
+                        @else
+                            <input type="hidden" name="Description" value="">
+                        @endif
+                        @if(!empty($item->Specification))
+                            <input type="hidden" name="Specs" value="{{ $item->Specification }}">
+                        @else
+                            <input type="hidden" name="Specs" value="">
+                        @endif
+                        @if(!empty($currency_rate[0]->currency))
+                            <input type="hidden" name="Currency" value="{{ $currency_rate[0]->currency }}">
+                        @else
+                            <input type="hidden" name="Currency" value="">
+                        @endif
+                        @if(!empty($item->Price_Min))
+                            <input type="hidden" name="Price_Min" value="{{ $item->Price_Min }}">
+                        @else
+                            <input type="hidden" name="Price_Min" value="0">
+                        @endif
+                        @if(!empty($item->Price_Max))
+                            <input type="hidden" name="Price_Max" value="{{ $item->Price_Max }}">
+                        @else
+                            <input type="hidden" name="Price_Max" value="0">
+                        @endif
+                        <button type="submit" class="btn btn-secondary mt-2">Add to list</button>
+                    </form>
 
 
                 </div>
@@ -749,7 +824,40 @@
                     Read More/Less
                 </a>
 
-
+<form action="{{ route('materials.add_to_list') }}" method="POST">
+                        @csrf
+                        @if(!empty($item->CSI))
+                            <input type="hidden" name="CSI" value="{{ $item->CSI }}">
+                        @else
+                            <input type="hidden" name="CSI" value="">
+                        @endif
+                        @if(!empty($item->Description))
+                            <input type="hidden" name="Description" value="{{ $item->Description }}">
+                        @else
+                            <input type="hidden" name="Description" value="">
+                        @endif
+                        @if(!empty($item->Specification))
+                            <input type="hidden" name="Specs" value="{{ $item->Specification }}">
+                        @else
+                            <input type="hidden" name="Specs" value="">
+                        @endif
+                        @if(!empty($currency_rate[0]->currency))
+                            <input type="hidden" name="Currency" value="{{ $currency_rate[0]->currency }}">
+                        @else
+                            <input type="hidden" name="Currency" value="">
+                        @endif
+                        @if(!empty($item->Price_Min))
+                            <input type="hidden" name="Price_Min" value="{{ $item->Price_Min }}">
+                        @else
+                            <input type="hidden" name="Price_Min" value="0">
+                        @endif
+                        @if(!empty($item->Price_Max))
+                            <input type="hidden" name="Price_Max" value="{{ $item->Price_Max }}">
+                        @else
+                            <input type="hidden" name="Price_Max" value="0">
+                        @endif
+                        <button type="submit" class="btn btn-secondary mt-2">Add to list</button>
+                    </form>
 
 
             </div>

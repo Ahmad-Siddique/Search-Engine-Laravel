@@ -63,4 +63,17 @@ class PrivacyPolicyController extends Controller
         return redirect()->route('disclaimer.edit')
                          ->with('success', 'Disclaimer updated successfully.');
     }
+
+
+    public function disclaimerview()
+    {
+        $policy = Disclaimer::firstOrNew(['id' => 1]); // Use firstOrNew to handle non-existing record
+        return view('privacy-policies.disclaimer', compact('policy'));
+    }
+
+    public function privacypolicyview()
+    {
+        $policy = PrivacyPolicy::firstOrNew(['id' => 1]); // Use firstOrNew to handle non-existing record
+        return view('privacy-policies.policy', compact('policy'));
+    }
 }

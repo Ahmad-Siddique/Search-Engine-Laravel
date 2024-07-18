@@ -23,7 +23,7 @@
         <a class="navbar-brand" href="/">
             @if (Storage::disk('public')->exists('logos/logo.png'))
             <img src="{{ asset('storage/logos/logo.png') }}" alt="Logo" style="height: 40px; margin-right: 10px;">
-        @endif Construction Insight</a>
+        @endif </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -68,6 +68,11 @@
                     <li class="nav-item">
                         <a class="nav-link active" 
                             aria-current="page" href="/disclaimer/edit">Disclaimer</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link active" 
+                            aria-current="page" href="/user-list">Your List</a>
                     </li>
 
                         <li class="nav-item dropdown ">
