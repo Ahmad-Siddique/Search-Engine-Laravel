@@ -41,12 +41,18 @@ class SearchController extends Controller
 
     function MainPage()
     {
-        // $randomnumber = rand(1, 5);
-        $backgroundpic = Background_Pic::all()->random(1)->first();
-        $currency = CurrencyConversion::all();
-        // return $currency;
-        // echo $backgroundpic;
-        return view("mainpage", ["randompic" => $backgroundpic, "currencyvalues"=>$currency]);
+        // Fetch background picture data
+        $backgroundPicQuery = Background_Pic::all();
+        $backgroundpic = $backgroundPicQuery->isNotEmpty() ? $backgroundPicQuery->random(1)->first() : null;
+    
+        // Fetch and sort currency data by ID in ascending order
+        $currency = CurrencyConversion::orderBy('id', 'asc')->get();
+    
+        // Pass the sorted currency data and random background picture to the view
+        return view("mainpage", [
+            "randompic" => $backgroundpic,
+            "currencyvalues" => $currency
+        ]);
     }
 
 
@@ -240,7 +246,7 @@ class SearchController extends Controller
             $currencyrate = $currency;
         }
 
-
+        $moduleNames = app('moduleNames');
         $currency_rate = DB::table("currency_conversion")->where("currency", $currencyrate)->get();
         $keywords = explode("+", $data);
         $keys = array_keys($keywords);
@@ -269,7 +275,7 @@ class SearchController extends Controller
         $resource = $resource->paginate(3);
 
         // return $resource;
-        return view("contentshow", ["data" => $search, "resource" => $resource, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate, "currencies" => $currencies]);
+        return view("contentshow", ["data" => $search, "resource" => $resource, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate, "currencies" => $currencies, "moduleNames"=>$moduleNames]);
     }
 
     function FetchServices($search, $category, $sorting, $currency)
@@ -324,12 +330,12 @@ class SearchController extends Controller
                 $services = $services->orderBy('Location', 'desc');
             }
         }
-
+        $moduleNames = app('moduleNames');
 
         $services = $services->paginate(3);
         $currencies = CurrencyConversion::pluck('currency')->toArray();
         // return $resource;
-        return view("contentshow", ["data" => $search, "services" => $services, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate,"currencies"=>$currencies]);
+        return view("contentshow", ["data" => $search, "services" => $services, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate,"currencies"=>$currencies,"moduleNames"=>$moduleNames]);
     }
 
     function FetchMaterials($search, $category, $sorting, $currency)
@@ -389,12 +395,12 @@ class SearchController extends Controller
                 // $services = $resource->orderBy('Location', 'desc');
             }
         }
-
+        $moduleNames = app('moduleNames');
         $currencies = CurrencyConversion::pluck('currency')->toArray();
         $materials = $materials->paginate(3);
 
         // return $resource;
-        return view("contentshow", ["data" => $search, "materials" => $materials, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate, "currencies" => $currencies]);
+        return view("contentshow", ["data" => $search, "materials" => $materials, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate, "currencies" => $currencies,"moduleNames"=>$moduleNames]);
     }
 
 
@@ -464,11 +470,11 @@ class SearchController extends Controller
         //         // $services = $resource->orderBy('Location', 'desc');
         //     }
         // }
-
+        $moduleNames = app('moduleNames');
         $currencies = CurrencyConversion::pluck('currency')->toArray();
         
         // return $resource;
-        return view("contentshow", ["data" => $search, "knowledgebase" => $materials, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate, "currencies" => $currencies]);
+        return view("contentshow", ["data" => $search, "knowledgebase" => $materials, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate, "currencies" => $currencies,"moduleNames"=>$moduleNames]);
     }
 
 
@@ -1013,12 +1019,14 @@ class SearchController extends Controller
 
 
             $quote->save();
-            // $email = array("name" => $quote->Name);
-            // $user["to"] = $quote->email;
-            // Mail::send('quotemail', $email, function ($messages) use ($user) {
-            //     $messages->to($user["to"]);
-            //     $messages->subject("Quotation Response");
-            // });
+            $email = array("name" => $quote->Name);
+            $user["to"] = $quote->email;
+            Mail::send('quotemail', $email, function ($messages) use ($user) {
+                $messages->to($user["to"]);
+                $messages->subject("Quotation Response");
+            });
+            
+            // return "email sent";
 
 
             return back();
@@ -1277,29 +1285,42 @@ class SearchController extends Controller
             return view("updateaskexpert", ["data" => $material]);
         }
 
-        function postupdateaskexpert(Request $req)
-        {
+       public function postupdateaskexpert(Request $req)
+{
+    try {
+        $user = AskExpert::find($req->id);
+        if ($user) {
+            // Update the user record
+            $user->email = $req->email;
+            $user->question = $req->question;
+            $user->answer = $req->answer;
+            $user->save();
 
-        try {
-            
-            $user = AskExpert::find($req->id);
-            if ($user) {
-                // Check if the file exists and delete it
-                $user->email = $req->email;
-                $user->question = $req->question;
-                $user->answer = $req->answer;
-                $user->save();
-            }
+            // Prepare email data
+            $emailData = [
+                'name' => $user->email,
+                'question' => $user->question,
+                'answer' => $user->answer,
+            ];
+
+            // Send email
+            Mail::send('emails.quotemail', $emailData, function ($message) use ($user) {
+                $message->to($user->email)
+                        ->subject('Quotation Response');
+            });
 
             return redirect("/allaskexpert")->with('success', 'Answer Submitted Successfully!');
-        } catch (\Exception $e) {
-            // Handle the error, log it if necessary, and redirect with an error message
-            // \Log::error("Error adding backgroundpic: " . $e->getMessage());
+        } else {
+            return redirect("/allaskexpert")->with('error', 'User not found');
+        }
+    } catch (\Exception $e) {
+        // Log the error if needed
+        // \Log::error("Error submitting answer: " . $e->getMessage());
 
-            // Redirect to the same page or an error page with an error message
-            return redirect("/allaskexpert")->with('error', 'Error occured while submitting answer');
-        }
-        }
+        return redirect("/allaskexpert")->with('error', 'Error occurred while submitting answer');
+    }
+}
+
 
     function deleteaskexpert($id)
     {
@@ -1487,30 +1508,37 @@ class SearchController extends Controller
             return view("updatecurrencyconversion", ["data" => $material]);
         }
 
-        function postupdatecurrencyconversion(Request $req)
-        {
-            try {
-                $quote = CurrencyConversion::find($req->id);
-                $quote->currency = $req->currency;
+    public function postupdatecurrencyconversion(Request $req)
+    {
+        try {
+            // Check if the hehe_id already exists for a different record
+            $existingQuote = CurrencyConversion::where('id', '!=', $req->id)
+                ->where('id', $req->hehe_id)
+                ->first();
 
-                $quote->price = $req->price;
-
-
-
-                $quote->save();
-
-
-
-
-                return redirect("/allcurrencyconversion")->with('success', 'Currency Updated Successfully!');
-            } catch (\Exception $e) {
-                // Handle the error, log it if necessary, and redirect with an error message
-                // \Log::error("Error adding currencyconversion: " . $e->getMessage());
-
-                // Redirect to the same page or an error page with an error message
-                return redirect("/allcurrencyconversion")->with('error', 'Failed to Update Currency');
+            if ($existingQuote) {
+                // Redirect with an error message if the hehe_id already exists
+                return redirect("/allcurrencyconversion")->with('error', 'This ID already exists with another currency.');
             }
+
+            // Find the quote and update its fields
+            $quote = CurrencyConversion::find($req->id);
+            $quote->id = $req->hehe_id;
+            $quote->currency = $req->currency;
+            $quote->price = $req->price;
+            $quote->save();
+
+            // Redirect with success message
+            return redirect("/allcurrencyconversion")->with('success', 'Currency Updated Successfully!');
+        } catch (\Exception $e) {
+            // Handle the error, log it if necessary, and redirect with an error message
+            // \Log::error("Error updating currency conversion: " . $e->getMessage());
+
+            // Redirect with an error message
+            return redirect("/allcurrencyconversion")->with('error', 'Failed to Update Currency');
         }
+    }
+
 
 
         function searchcurrencyconversion(Request $req)
@@ -1716,12 +1744,12 @@ class SearchController extends Controller
         $user = session('user');
         $userList = new UserList();
         $userList->user_id = $user->id;
-        $userList->CSI = $request->input('CSI');
-        $userList->Description = $request->input('Description');
-        $userList->Specs = $request->input('Specs');
-        $userList->Currency = $request->input('Currency');
-        $userList->Price_Min = $request->input('Price_Min');
-        $userList->Price_Max = $request->input('Price_Max');
+        $userList->CSI = $request->input('CSI') ?? '';
+        $userList->Description = $request->input('Description') ?? '';
+        $userList->Specs = $request->input('Specs') ?? '';
+        $userList->Currency = $request->input('Currency') ?? 'USD';
+        $userList->Price_Min = $request->input('Price_Min') ?? 0;
+        $userList->Price_Max = $request->input('Price_Max') ?? 0;
         $userList->save();
 
         return redirect()->back()->with('success', 'Item added to list successfully.');
@@ -1747,6 +1775,38 @@ class SearchController extends Controller
         UserList::where('user_id', $user->id)->delete();
 
         return redirect()->back()->with('success', 'List exported and deleted successfully.');
+    }
+
+
+
+    public function deleteUserRecord()
+    {
+        // Get the user from the session
+        $user = session('user');
+
+        // Check if the user is in the session
+        if ($user) {
+            // Retrieve the record from the UserList table
+            $userRecord = UserList::where('user_id', $user->id);
+
+            // Check if the record exists
+            if ($userRecord) {
+                // Delete the record
+                $userRecord->delete();
+
+                // Optionally, you can add a success message to the session
+                session()->flash('message', 'Record deleted successfully.');
+            } else {
+                // Optionally, you can add an error message to the session
+                session()->flash('error', 'No record found for the user.');
+            }
+        } else {
+            // Optionally, you can add an error message to the session
+            session()->flash('error', 'User not found in session.');
+        }
+
+        // Redirect to a specific route or return a view
+        return redirect()->route('materials.user_list');
     }
 
     }

@@ -107,12 +107,14 @@ button {
             {{ session('error') }}
         </div>
     @endif
-    <h2 class="mt-4 text-center">Your List </h2>
+    <h2 class="mt-4 text-center">My List </h2>
     <div class="d-flex flex-row-reverse">
         <form action="{{ route('materials.export_list') }}" method="POST">
         @csrf
         <button type="submit" class="btn btn-primary">Export List</button>
     </form>
+    <a  class="btn btn-primary mx-2"
+                    href="/delete-user"> Delete List</a>
     {{-- <button class="btn btn-success d-flex"><a class="atag" href="/addservice"> Add {{$moduleNames->service}}</a></button>
     <button class="btn btn-success mx-3"><a class="atag" href="/addservicefile"> Import File</a></button>
     <button class="btn btn-success mx-3"><a class="atag" href="/services/export/"> Export {{$moduleNames->service}}</a></button> --}}

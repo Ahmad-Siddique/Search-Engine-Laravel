@@ -59,31 +59,31 @@
         class="relative sm:flex sm:justify-center sm:items-center min-h-screen bg-dots-darker bg-center bg-gray-100 dark:bg-dots-lighter dark:bg-gray-900 selection:bg-red-500 selection:text-white">
      
 
-        <div class="containing "
-            style="background-image:url({{ url(Storage::url($randompic->Photo)) }}); background-size:cover">
+        <div class="containing"
+     style="background-image:url({{ $randompic ? url(Storage::url($randompic->Photo)) : 'https://plus.unsplash.com/premium_photo-1675495801560-f4166d6adc10?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }}); background-size:cover">
 
             {{-- <img class="containing" src="{{ url('/images/' . $randompic . '.jpg') }}" alt="random image" /> --}}
             <div class="container centering " style="border:1px">
             <form id="searchForm">
     @csrf
     <div class="row">
-        <div class="col-5">
-            <input type="text" name="search" class="form-control" id="searchInput" placeholder="Search anything you like">
+        <div class="col-lg-4 col-md-4 col-12">
+            <input type="text" name="search" class="form-control" id="searchInput" placeholder="Enter keywords">
         </div>
-        <div class="col-2">
+        <div class="col-lg-2 col-md-2 col-12">
             <select name="category" class="form-select" aria-label="Default select example">
                 <option value="Price">Price</option>
                 <option value="Origin">Origin</option>
                 <option value="Availability">Availability</option>
             </select>
         </div>
-        <div class="col-2">
+        <div class="col-lg-2 col-md-2 col-12">
             <select name="sorting" class="form-select" aria-label="Default select example">
                 <option value="Ascending">Ascending</option>
                 <option value="Descending">Descending</option>
             </select>
         </div>
-        <div class="col-2">
+        <div class="col-lg-2 col-md-2 col-12">
             <select name="currency" class="form-select" aria-label="Default select example">
                 @isset($currencyvalues)
                     @if (count($currencyvalues) > 0)
@@ -100,7 +100,7 @@
                 @endisset
             </select>
         </div>
-        <div class="col-1">
+        <div class="col-lg-2 col-md-2 col-12">
             <button type="button" onclick="redirectToSearch()" class="btn btn-md btn-primary">Search</button>
         </div>
     </div>

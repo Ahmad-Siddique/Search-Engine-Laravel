@@ -70,11 +70,11 @@ class GalleryController extends Controller
                 // $services = $services->orderBy('Location', 'desc');
             }
         }
-
+        $moduleNames = app('moduleNames');
         $currencies = CurrencyConversion::pluck('currency')->toArray();
         $services = $services->paginate(10);
         // return $resource;
-        return view("contentshow", ["data" => $search, "gallery" => $services, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate, "currencies" => $currencies]);
+        return view("contentshow", ["data" => $search, "gallery" => $services, "category" => $category, "sorting" => $sorting, "currency" => $currency, "currency_rate" => $currency_rate, "currencies" => $currencies,"moduleNames"=>$moduleNames]);
     }
 
 

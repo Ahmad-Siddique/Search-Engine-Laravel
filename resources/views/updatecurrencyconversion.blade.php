@@ -78,6 +78,8 @@ button {
             <form method="POST" action="/postupdatecurrencyconversion/{{$data['id']}}">
                 @csrf
                 <input type="hidden" name="id" value="{{ $data['id'] }}" />
+                <label for="currency" class="form-label">Currency ID</label>
+                <input type="number" name="hehe_id" value="{{ $data['id'] }}" />
                 <label for="currency" class="form-label">Currency Name</label>
                 <select class="form-control" id="currency" name="currency">
                     <option value="">Select your Currency</option>

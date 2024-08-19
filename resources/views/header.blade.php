@@ -72,7 +72,7 @@
 
                     <li class="nav-item">
                         <a class="nav-link active" 
-                            aria-current="page" href="/user-list">Your List</a>
+                            aria-current="page" href="/user-list">My List</a>
                     </li>
 
                         <li class="nav-item dropdown ">
@@ -156,19 +156,19 @@
                                     </ul>
                                 </li>
 
-                                <li class="dropdown-submenu">
-                                    <a href="#" data-bs-toggle="dropdown"
-                                        class="dropdown-item dropdown-toggle">Privacy and Security</a>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a href="/allbackgroundpic" class="dropdown-item">Privacy Policy</a>
-                                        </li>
+                                <!--<li class="dropdown-submenu">-->
+                                <!--    <a href="#" data-bs-toggle="dropdown"-->
+                                <!--        class="dropdown-item dropdown-toggle">Privacy and Security</a>-->
+                                <!--    <ul class="dropdown-menu">-->
+                                <!--        <li>-->
+                                <!--            <a href="/allbackgroundpic" class="dropdown-item">Privacy Policy</a>-->
+                                <!--        </li>-->
                                        
 
 
 
-                                    </ul>
-                                </li>
+                                <!--    </ul>-->
+                                <!--</li>-->
                                 @endif
                             </ul>
                         </li>

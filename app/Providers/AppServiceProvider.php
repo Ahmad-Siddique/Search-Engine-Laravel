@@ -6,7 +6,8 @@ use App\Models\Disclaimer;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-
+use Illuminate\Support\Facades\View;
+use App\Http\View\Composers\ModuleNamesComposer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         Paginator::useBootstrap();
+        // View::composer('*', ModuleNamesComposer::class);
         Schema::defaultStringLength(191);
         view()->composer('footer', function ($view) {
             $privacyPolicy = PrivacyPolicy::latest()->first();
