@@ -70,9 +70,10 @@
 <body>
     <div class="container">
         <div class="card">
-            <h2>Login Form</h2>
-            <form method="POST" action="/loginin">
+            <h2>Reset Your Password</h2>
+            <form method="POST" action="{{ route('password.update') }}">
                 @csrf
+                <input type="hidden" name="token" value="{{ $token }}">
                 @if ($errors->any())
                     <div class="error-message">
                         @foreach ($errors->all() as $error)
@@ -80,17 +81,13 @@
                         @endforeach
                     </div>
                 @endif
-                <label for="username">Email</label>
-                <input type="text" id="username" name="email" placeholder="Enter your email" value="{{ old('email') }}" required>
-
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" required>
-
-                <button type="submit">Login</button>
-                <div class="switch">
-                    <a href="{{ route('password.request') }}">Forgot Password?</a>
-                </div>
-                <div class="switch">Don't have an account? <a href="/register">Register here</a></div>
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" value="{{ old('email') }}" required>
+                <label for="password">New Password</label>
+                <input type="password" id="password" name="password" required>
+                <label for="password-confirm">Confirm Password</label>
+                <input type="password" id="password-confirm" name="password_confirmation" required>
+                <button type="submit">Reset Password</button>
             </form>
         </div>
     </div>

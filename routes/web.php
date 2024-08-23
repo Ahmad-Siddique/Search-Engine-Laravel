@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\EquipmentController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\LogoController;
 use App\Http\Controllers\ModuleNameController;
 use App\Http\Controllers\PrivacyPolicyController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +54,18 @@ Route::get("/images/{search}/{category}/{sorting}/{currency}", [SearchController
 
 Route::view('/login', "loginform");
 Route::view('/register', "registerform");
+// Display the password reset request form
+Route::get('/password/reset', [PasswordResetController::class,'showRequestForm'])->name('password.request');
+
+// Handle the password reset request
+Route::post('/password/email', [PasswordResetController::class,'sendResetLinkEmail'])->name('password.email');
+
+// Display the reset form
+Route::get('/password/reset/{token}', [PasswordResetController::class,'showResetForm'])->name('password.reset');
+
+// Handle the reset password
+Route::post('/password/reset', [PasswordResetController::class,'reset'])->name('password.update');
+
 
 
 Route::post('/loginin', [SearchController::class,"login"]);

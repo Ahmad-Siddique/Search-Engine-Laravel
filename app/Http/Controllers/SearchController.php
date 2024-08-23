@@ -493,40 +493,37 @@ class SearchController extends Controller
 
 
 
-    function login(Request $req)
-    {
+    public function login(Request $req)
+{
+    $req->validate([
+        'email' => 'required|email',
+        'password' => 'required'
+    ]);
 
-        $req->validate([
+    $user = User::where('email', $req->email)->first();
 
-            'email' => 'required',
-            'password' => 'required'
+    if (!$user || !Hash::check($req->password, $user->password)) {
+        return redirect('/login')->withErrors([
+            'email' => 'Invalid email or password.'
+        ])->withInput();
+    } else {
+        // Put module names in the session
+        $moduleNames = ModuleName::firstOrCreate([], [
+            'material' => 'material',
+            'resource' => 'resource',
+            'service' => 'service',
+            'equipment' => 'equipment',
+            'reference' => 'reference',
+            'gallery' => 'gallery',
         ]);
-        // return $req->input("password");
 
-        $user = User::where('email', $req->email)->first();
-
-        if (!$user || !Hash::check($req->password, $user->password)) {
-            return redirect("/login");
-        } else {
-            // return $user;
-
-
-            // Put module names in the session
-            $moduleNames = ModuleName::firstOrCreate([], [
-                'material' => 'material',
-                'resource' => 'resource',
-                'service' => 'service',
-                'equipment' => 'equipment',
-                'reference' => 'reference',
-                'gallery' => 'gallery',
-            ]);
-
-            // Put module names in the session
-            $req->session()->put('module_names', $moduleNames);
-            $req->session()->put("user", $user);
-            return redirect("/");
-        }
+        // Put module names in the session
+        $req->session()->put('module_names', $moduleNames);
+        $req->session()->put("user", $user);
+        return redirect("/");
     }
+}
+
 
 
     function register(Request $req)
